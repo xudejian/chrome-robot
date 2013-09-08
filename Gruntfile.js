@@ -29,6 +29,10 @@ module.exports = function (grunt) {
             options: {
                 spawn: false
             },
+            jade: {
+                files: ['<% yeoman.app %>/{,*/}*.jade'],
+                tasks: ['jade:dist']
+            },
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
                 tasks: ['coffee:dist']
@@ -71,6 +75,20 @@ module.exports = function (grunt) {
                 }]
             },
             server: '.tmp'
+        },
+        jade: {
+            dist: {
+                options: {
+                    pretty: true
+                },
+                files: [{
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    dest: '.tmp',
+                    src: '*.jade',
+                    ext: '.html'
+                }]
+            }
         },
         jshint: {
             options: {
@@ -145,10 +163,7 @@ module.exports = function (grunt) {
             options: {
                 dest: '<%= yeoman.dist %>'
             },
-            html: [
-                '<%= yeoman.app %>/popup.html',
-                '<%= yeoman.app %>/options.html'
-            ]
+            html: ['.tmp/{,*/}*.html']
         },
         usemin: {
             options: {
@@ -202,7 +217,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '.tmp',
                     src: '*.html',
                     dest: '<%= yeoman.dist %>'
                 }]
@@ -234,6 +249,7 @@ module.exports = function (grunt) {
         concurrent: {
             server: [
                 'coffee:dist',
+                'jade:dist',
                 'compass:server'
             ],
             test: [
@@ -241,7 +257,7 @@ module.exports = function (grunt) {
                 'compass'
             ],
             dist: [
-                'coffee',
+                'coffee:dist',
                 'compass:dist',
                 'imagemin',
                 'svgmin',
@@ -285,6 +301,7 @@ module.exports = function (grunt) {
     grunt.registerTask('build', [
         'clean:dist',
         'chromeManifest:dist',
+        'jade:dist',
         'useminPrepare',
         'concurrent:dist',
         'cssmin',

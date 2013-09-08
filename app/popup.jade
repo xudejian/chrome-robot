@@ -1,0 +1,38 @@
+doctype 5
+html
+  head
+    link(href="styles/main.css", rel="stylesheet")
+    // build:js scripts/popup.js
+    script(src="scripts/popup.coffee")
+    // endbuild
+  body
+    //- CHROME EXTENSION POPUP
+    h1 Chrome Robot
+    p
+      Start on: 
+      input#start(size=40)
+
+    p
+      Restrict to:
+      input#regex(size=40)
+    p
+      input#plusone(type="checkbox")
+      label(for="plusone") Follow one link beyond restriction.
+    p
+      input#inline(type="checkbox")
+      label(for="inline")
+        | Check inline content.
+        small (CSS, images)
+    p
+      input#scripts(type="checkbox")
+      label(for="scripts")
+        | Check script content.
+        small (JavaScript, Flash)
+    p
+      input#arguments(type="checkbox")
+      label(for="arguments")
+        | Avoid links with arguments.
+        small (e.g.&nbsp;page?foo=bar)
+
+    p
+      input#robot_go(type='button', value='Go')
