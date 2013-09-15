@@ -3,7 +3,7 @@ html
   head
     link(href="styles/main.css", rel="stylesheet")
     // build:js scripts/popup.js
-    script(src="scripts/popup.coffee")
+    script(src="scripts/popup.js")
     // endbuild
   body
     //- CHROME EXTENSION POPUP
@@ -11,7 +11,6 @@ html
     p
       Start on: 
       input#start(size=40)
-
     p
       Restrict to:
       input#regex(size=40)
@@ -33,6 +32,5 @@ html
       label(for="arguments")
         | Avoid links with arguments.
         small (e.g.&nbsp;page?foo=bar)
-
     p
       input#robot_go(type='button', value='Go')

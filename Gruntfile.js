@@ -29,13 +29,17 @@ module.exports = function (grunt) {
             options: {
                 spawn: false
             },
+            grunt: {
+                files: ['Gruntfile.js'],
+                tasks: ['jshint']
+            },
             jade: {
-                files: ['<% yeoman.app %>/{,*/}*.jade'],
-                tasks: ['jade:dist']
+                files: ['<%= yeoman.app %>/{,*/}*.jade'],
+                tasks: ['jade:dist', 'useminPrepare', 'htmlmin', 'usemin']
             },
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
-                tasks: ['coffee:dist']
+                tasks: ['coffee:dist', 'useminPrepare', 'concat']
             },
             coffeeTest: {
                 files: ['test/spec/{,*/}*.coffee'],
@@ -64,11 +68,15 @@ module.exports = function (grunt) {
             }
         },
         clean: {
+            options: {
+                'no-write':true
+            },
             dist: {
                 files: [{
                     dot: true,
                     src: [
                         '.tmp',
+                        '<%= yeoman.app %>/scripts/*.js',
                         '<%= yeoman.dist %>/*',
                         '!<%= yeoman.dist %>/.git*'
                     ]
@@ -84,7 +92,7 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     cwd: '<%= yeoman.app %>',
-                    dest: '.tmp',
+                    dest: '<%= yeoman.app %>',
                     src: '*.jade',
                     ext: '.html'
                 }]
@@ -114,7 +122,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= yeoman.app %>/scripts',
                     src: '{,*/}*.coffee',
-                    dest: '.tmp/scripts',
+                    dest: '<%= yeoman.app %>/scripts',
                     ext: '.js'
                 }]
             },
@@ -163,7 +171,7 @@ module.exports = function (grunt) {
             options: {
                 dest: '<%= yeoman.dist %>'
             },
-            html: ['.tmp/{,*/}*.html']
+            html: ['<%= yeoman.app %>/{,*/}*.html']
         },
         usemin: {
             options: {
@@ -217,7 +225,7 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd: '.tmp',
+                    cwd: '<%= yeoman.app %>',
                     src: '*.html',
                     dest: '<%= yeoman.dist %>'
                 }]
@@ -249,7 +257,6 @@ module.exports = function (grunt) {
         concurrent: {
             server: [
                 'coffee:dist',
-                'jade:dist',
                 'compass:server'
             ],
             test: [
@@ -272,7 +279,7 @@ module.exports = function (grunt) {
                         target:'scripts/background.js'
                     }
                 },
-                src: '<%= yeoman.app %>',
+                src: ['<%= yeoman.app %>'],
                 dest: '<%= yeoman.dist %>'
             }
         },
