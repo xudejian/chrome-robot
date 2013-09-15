@@ -25,6 +25,7 @@ module.exports = (grunt) ->
     watch:
       options:
         spawn: false
+        atBegin: true
       jade:
         files: ['<%= yeoman.app %>/{,*/}*.jade'],
         tasks: ['jade:dist']
