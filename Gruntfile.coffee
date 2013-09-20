@@ -24,7 +24,7 @@ module.exports = (grunt) ->
     yeoman: yeomanConfig
     watch:
       options:
-        spawn: false
+        spawn: true
         atBegin: true
       jade:
         files: ['<%= yeoman.app %>/{,*/}*.jade'],
@@ -60,8 +60,8 @@ module.exports = (grunt) ->
           dot: true
           src: [
             '.tmp'
-            '<%= yeoman.app %>/*.html'
-            '<%= yeoman.app %>/scripts/{,*/}.js'
+            '<%= yeoman.app %>/{,*/}*.html'
+            '<%= yeoman.app %>/scripts/{,*/}*.js'
             '<%= yeoman.dist %>/*'
             '!<%= yeoman.dist %>/.git*'
           ]
@@ -77,7 +77,7 @@ module.exports = (grunt) ->
           expand: true
           cwd: '<%= yeoman.app %>'
           dest: '<%= yeoman.app %>'
-          src: '*.jade'
+          src: '{,*/}*.jade'
           ext: '.html'
         ]
       # jade end
@@ -125,6 +125,7 @@ module.exports = (grunt) ->
         importPath: '<%= yeoman.app %>/bower_components'
         httpImagesPath: '/images'
         httpGeneratedImagesPath: '/images/generated'
+        httpFontsPath: '/styles/fonts'
         relativeAssets: false
       dist: {}
       server:
@@ -135,7 +136,6 @@ module.exports = (grunt) ->
     # not used since Uglify task does concat,
     # but still available if needed
     #concat:
-    #  dist:
     #
     # not enabled since usemin task does concat and uglify
     # check index.html to edit your build targets
@@ -195,7 +195,10 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= yeoman.app %>'
-          src: '*.html'
+          src: [
+            '*.html'
+            'views/*.html'
+          ]
           dest: '<%= yeoman.dist %>'
         ]
       # htmlmin end
@@ -209,8 +212,10 @@ module.exports = (grunt) ->
           dest: '<%= yeoman.dist %>'
           src: [
             '*.{ico,png,txt}'
+            'bower_components/**/*'
             'images/{,*/}*.{webp,gif}'
             '_locales/{,*/}*.json'
+            'styles/fonts/*'
           ]
         ,
           expand: true
@@ -239,7 +244,7 @@ module.exports = (grunt) ->
     chromeManifest:
       dist:
         options:
-          buildnumber: true
+          buildnumber: false
           background:
             target:'scripts/background.js'
         src: ['<%= yeoman.app %>']
@@ -256,6 +261,16 @@ module.exports = (grunt) ->
           dest: ''
         ]
 
+    ngmin:
+      dist:
+        files: [
+          expand: true
+          cwd: '<%= yeoman.dist %>/scripts'
+          src: '{,*/}*.js'
+          dest: '<%= yeoman.dist %>/scripts'
+        ]
+
+
   grunt.registerTask 'test', [
     'clean:server'
     'concurrent:test'
@@ -271,6 +286,7 @@ module.exports = (grunt) ->
     'concurrent:dist'
     'cssmin'
     'concat'
+    'ngmin'
     'uglify'
     'copy'
     'usemin'

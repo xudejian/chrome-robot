@@ -21,7 +21,7 @@
         "default_title": "chrome robot",
         "default_popup": "popup.html"
     },
-    "options_page": "options.html",
+    "options_page": "index.html#options",
     "omnibox": {
         "keyword": "chrome robot"
     },
@@ -31,9 +31,6 @@
             "matches": [
                 "http://*/*",
                 "https://*/*"
-            ],
-            "css": [
-                "styles/main.css"
             ],
             "js": [
                 "scripts/contentscript.js"

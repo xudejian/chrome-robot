@@ -9,3 +9,4 @@ click_go = ->
   window.close()
 
 window.addEventListener 'load', page_loaded
+console.log 'popup load'

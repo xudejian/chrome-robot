@@ -1,5 +1,7 @@
 'use strict'
 
+console.log 'background load'
+
 chrome.runtime.onInstalled.addListener (details) ->
   console.log 'previousVersion', details.previousVersion
 
@@ -74,19 +76,22 @@ trimAfter = (string, sep) ->
   popupStop()
 
   resultsWindows = chrome.extension.getViews type: 'tab'
+  console.log resultsWindows
 
   for x in resultsWindows
     doc = x.document
+    console.log 'tab title: ', doc
     if doc.title == RESULTS_TITLE
+      console.log x
       doc.title = RESULTS_TITLE + ' - Closed'
 
   # Attempt to parse the allowed URL regex.
   input = popupDoc.getElementById 'regex'
   allowedText = input.value
   try
-    allowedRegex = new RegExp(allowedText)
+    allowedRegex = new RegExp allowedText
   catch e
-    alert('Restrict regex error:\n' + e)
+    alert 'Restrict regex error:\n' + e
     popupStop()
     return
 
@@ -104,8 +109,10 @@ trimAfter = (string, sep) ->
   pagesTodo[startPage] = '[root page]'
 
   resultsLoadCallback_ = (tab) ->
+    console.log tab
     resultsTab = tab
     window.setTimeout resultsLoadCallbackDelay_, 100
+
   resultsLoadCallbackDelay_ = ->
     chrome.tabs.sendMessage resultsTab.id,
       method:"getElementById"
@@ -126,11 +133,10 @@ trimAfter = (string, sep) ->
   chrome.tabs.create url: 'work.html', resultsLoadCallback_
 
 setInnerSafely = (msg) ->
-  msg = msg.toString()
-  msg = msg.replace(/&/g, '&amp;')
-  msg = msg.replace(/</g, '&lt;')
-  msg = msg.replace(/>/g, '&gt;')
-  msg
+  msg.toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
 
 popupStop = ->
   started= false
@@ -171,10 +177,10 @@ spiderPage = ->
 
   # Fetch this page using Ajax.
   setStatus 'Prefetching ' + url
-  httpRequestWatchDogPid = window.setTimeout(httpRequestWatchDog, HEAD_REQUEST_TIMEOUT)
+  httpRequestWatchDogPid = window.setTimeout httpRequestWatchDog, HEAD_REQUEST_TIMEOUT
   httpRequest = new XMLHttpRequest()
   httpRequest.onreadystatechange = httpRequestChange
-  httpRequest.open('HEAD', url, false)
+  httpRequest.open 'HEAD', url, false
   # For some reason this request only works intermitently when called directly.
   # Delay request by 1ms.
   window.setTimeout (-> httpRequest.send(null)), 1
@@ -202,50 +208,49 @@ newTabWatchDog = ->
   window.setTimeout(spiderPage, 1)
 
 httpRequestChange = ->
-    console.log("httpRequestChange")
+  console.log("httpRequestChange")
 
-    # Still loading.  Wait for it.
-    return if (!httpRequest || httpRequest.readyState < 2)
+  # Still loading.  Wait for it.
+  return if (!httpRequest || httpRequest.readyState < 2)
 
-    code = httpRequest.status
-    mime = httpRequest.getResponseHeader('Content-Type') || '[none]'
-    httpRequest = null
-    window.clearTimeout(httpRequestWatchDogPid)
-    setStatus('Prefetched ' + currentRequest.requestedURL + ' (' + mime + ')')
+  code = httpRequest.status
+  mime = httpRequest.getResponseHeader('Content-Type') || '[none]'
+  httpRequest = null
+  window.clearTimeout(httpRequestWatchDogPid)
+  setStatus('Prefetched ' + currentRequest.requestedURL + ' (' + mime + ')')
 
-    # 'SPIDER_MIME' is a list of allowed mime types.
-    # 'mime' could be in the form of "text/html charset=utf-8"
-    # For each allowed mime type, check for its presence in 'mime'.
-    mimeOk = false
-    for x in SPIDER_MIME
-      if mime.indexOf(x) != -1
-        mimeOk = true
-        break
+  # 'SPIDER_MIME' is a list of allowed mime types.
+  # 'mime' could be in the form of "text/html charset=utf-8"
+  # For each allowed mime type, check for its presence in 'mime'.
+  mimeOk = false
+  for x in SPIDER_MIME
+    if mime.indexOf(x) != -1
+      mimeOk = true
+      break
 
-    # If this is a redirect or an HTML page, open it in a new tab and
-    # look for links to follow.  Otherwise, move on to next page.
-    is_redirect = ->
-      return false unless currentRequest.requestedURL.match allowedRegex
-      return true if code >= 300 and code < 400
-      return code < 300 and mimeOk
-    if is_redirect()
-      setStatus('Fetching ' + currentRequest.requestedURL)
-      newTabWatchDogPid = window.setTimeout(newTabWatchDog, HTTP_REQUEST_TIMEOUT)
-      chrome.tabs.create(
-        url: currentRequest.requestedURL
-        selected: false
-        , spiderLoadCallback_)
-    else
-      currentRequest.returnedURL = "Skipped"
-      recordPage(currentRequest)
+  # If this is a redirect or an HTML page, open it in a new tab and
+  # look for links to follow.  Otherwise, move on to next page.
+  is_redirect = ->
+    return false unless currentRequest.requestedURL.match allowedRegex
+    return true if code >= 300 and code < 400
+    return code < 300 and mimeOk
+  if is_redirect()
+    setStatus('Fetching ' + currentRequest.requestedURL)
+    newTabWatchDogPid = window.setTimeout(newTabWatchDog, HTTP_REQUEST_TIMEOUT)
+    chrome.tabs.create(
+      url: currentRequest.requestedURL
+      selected: false
+      , spiderLoadCallback_)
+  else
+    currentRequest.returnedURL = "Skipped"
+    recordPage(currentRequest)
 
-      window.setTimeout(spiderPage, 1)
+    window.setTimeout(spiderPage, 1)
 
 spiderLoadCallback_ = (tab) ->
   spiderTab = tab
   setStatus('Spidering ' + spiderTab.url)
   chrome.tabs.executeScript spiderTab.id, file: 'spider.js'
-
 
 #Add listener for message events from the injected spider code.
 chrome.extension.onMessage.addListener (request, sender, sendResponse) ->
