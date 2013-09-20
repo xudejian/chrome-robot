@@ -28,10 +28,10 @@ module.exports = (grunt) ->
         atBegin: true
       jade:
         files: ['<%= yeoman.app %>/{,*/}*.jade'],
-        tasks: ['jade:dist']
+        tasks: ['jade:dist', 'htmlmin', 'usemin']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
-        tasks: ['coffee:dist']
+        tasks: ['coffee:dist', 'useminPrepare', 'concat']
       coffeeTest:
         files: ['test/spec/{,*/}*.coffee'],
         tasks: ['coffee:test']

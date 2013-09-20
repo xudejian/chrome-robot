@@ -130,7 +130,7 @@ trimAfter = (string, sep) ->
     spiderPage()
 
   # Open a tab for the results.
-  chrome.tabs.create url: 'work.html', resultsLoadCallback_
+  chrome.tabs.create url: '/index.html#/work', resultsLoadCallback_
 
 setInnerSafely = (msg) ->
   msg.toString()

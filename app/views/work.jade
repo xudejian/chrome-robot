@@ -1,0 +1,31 @@
+img(src="images/icon-128.png", align="right")
+h1 {{title}}
+
+button.btn(type="button", ng-model="btn.pause", btn-checkbox, btn-checkbox-true="1", btn-checkbox-false="0") Pause
+button.btn(type="button", ng-model="btn.stop", btn-checkbox,
+btn-checkbox-true="1", btn-checkbox-false="0") Stop
+table
+  tr
+    td Starting on:
+    td#startingOn
+  tr
+    td Restrict to:
+    td#restrictTo
+  tr
+    td Queue:
+    td#queue 0
+  tr
+    td Status:
+    td#status Initializing...
+
+table#resultsTable
+  colgroup
+    col(style="width: 32%")
+    col(style="width: 32%")
+    col(style="width: 32%")
+  thead
+    tr
+      th.nocase Requested URL
+      th.nocase Returned URL
+      th.nocase Referrer
+  tbody#resultbody
