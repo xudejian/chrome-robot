@@ -7,12 +7,12 @@ chrome.runtime.onInstalled.addListener (details) ->
 chrome.app.runtime.onLaunched.addListener ->
   opt =
     bounds:
-      width: 800
-      height: 600
-      left: 100
-      top: 100
-    minWidth: 800
-    minHeight: 600
+      width: 1024
+      height: 768
+      left: 10
+      top: 10
+    minWidth: 1024
+    minHeight: 768
   chrome.app.window.create 'index.html#/works', opt, (created_window) ->
     chrome.notifications.create 'chrome-robot',
         type: 'basic'

@@ -6,7 +6,33 @@ html(ng-app="chromeRobotApp", ng-csp="")
     meta(name="viewport", content="width=device-width")
     link(href="styles/main.css", rel="stylesheet")
   body
-    .container(ng-view="")
+    header.header.navbar.navbar-fixed-top
+      .navbar-inner
+        .container
+          a.brand(href="#") Chrome Robot
+          ul.nav
+            li.divider-vertical
+            li
+              a(href="#")
+                i.icon-home
+                |  Home
+            li.divider-vertical
+            li
+              a(href="#/options")
+                i.icon-wrench
+                |  Options
+            li.divider-vertical
+            li
+              a(href="#/works")
+                i.icon-tasks
+                |  Works
+            li.divider-vertical
+    .container
+      .row(ng-view="")
+    footer.footer
+      hr
+      .container
+        p Super-powered by Dejian Xu ©2013
     // build:js({.tmp,app}) scripts/modules.js
     script(src="bower_components/jquery/jquery.js")
     script(src="bower_components/angular/angular.js")
