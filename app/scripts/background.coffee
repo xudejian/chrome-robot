@@ -1,9 +1,7 @@
 'use strict'
 
-console.log 'background load'
-
 chrome.runtime.onInstalled.addListener (details) ->
-  console.log 'previousVersion', details.previousVersion
+  console.log 'installed', details
 
 HTTP_REQUEST_TIMEOUT = 30 * 1000
 HEAD_REQUEST_TIMEOUT = 5 * 1000
@@ -36,7 +34,6 @@ currentRequest =
   referrer:null
 
 @popupLoaded = (doc) ->
-  console.log 'save popup doc'
   popupDoc = doc
   chrome.tabs.getSelected null, setDefaultUrl_
 
@@ -76,7 +73,7 @@ trimAfter = (string, sep) ->
   popupStop()
 
   resultsWindows = chrome.extension.getViews type: 'tab'
-  console.log resultsWindows
+  console.log 'resultsWindows', resultsWindows
 
   for x in resultsWindows
     doc = x.document
@@ -106,10 +103,11 @@ trimAfter = (string, sep) ->
   pagesDone = {}
   # Add the start page to the todo list.
   startPage = popupDoc.getElementById('start').value
+  console.log 'startPage', startPage
   pagesTodo[startPage] = '[root page]'
 
   resultsLoadCallback_ = (tab) ->
-    console.log tab
+    console.log 'resultsTab', tab
     resultsTab = tab
     window.setTimeout resultsLoadCallbackDelay_, 100
 
@@ -130,7 +128,7 @@ trimAfter = (string, sep) ->
     spiderPage()
 
   # Open a tab for the results.
-  chrome.tabs.create url: '/index.html#/work', resultsLoadCallback_
+  chrome.tabs.create url: '/index.html#/works', resultsLoadCallback_
 
 setInnerSafely = (msg) ->
   msg.toString()

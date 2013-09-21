@@ -27,17 +27,24 @@ module.exports = (grunt) ->
         spawn: true
         atBegin: true
       jade:
-        files: ['<%= yeoman.app %>/{,*/}*.jade'],
+        files: ['<%= yeoman.app %>/{,*/}*.jade']
         tasks: ['jade:dist', 'htmlmin', 'usemin']
       coffee:
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
+        files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
         tasks: ['coffee:dist', 'useminPrepare', 'concat']
       coffeeTest:
-        files: ['test/spec/{,*/}*.coffee'],
+        files: ['test/spec/{,*/}*.coffee']
         tasks: ['coffee:test']
       compass:
-        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
+      dev:
+        files: [
+          '<%= yeoman.app %>/scripts/background.js'
+          '<%= yeoman.app %>/scripts/contentscript.js'
+          '<%= yeoman.app %>/manifest.json'
+        ]
+        tasks: ['copy:dev']
       # watch end
 
     connect:
@@ -222,6 +229,28 @@ module.exports = (grunt) ->
           cwd: '.tmp/images'
           dest: '<%= yeoman.dist %>/images'
           src: [ 'generated/*' ]
+        ,
+          expand: true
+          dot: true
+          cwd: '<%= yeoman.app %>'
+          dest: '<%= yeoman.dist %>'
+          src: [
+            'scripts/background.js'
+            'scripts/contentscript.js'
+            'manifest.json'
+          ]
+        ]
+      dev:
+        files: [
+          expand: true
+          dot: true
+          cwd: '<%= yeoman.app %>'
+          dest: '<%= yeoman.dist %>'
+          src: [
+            'scripts/background.js'
+            'scripts/contentscript.js'
+            'manifest.json'
+          ]
         ]
 
     concurrent:
@@ -280,7 +309,6 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'build', [
     'clean:dist'
-    'chromeManifest:dist'
     'jade:dist'
     'useminPrepare'
     'concurrent:dist'
@@ -288,7 +316,7 @@ module.exports = (grunt) ->
     'concat'
     'ngmin'
     'uglify'
-    'copy'
+    'copy:dist'
     'usemin'
     'compress'
   ]

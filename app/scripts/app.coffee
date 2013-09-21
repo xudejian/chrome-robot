@@ -9,7 +9,10 @@ angular.module('chromeRobotApp', [
       .when '/',
         templateUrl: 'views/main.html'
         controller: 'MainCtrl'
-      .when '/work',
+      .when '/options',
+        templateUrl: 'views/options.html'
+        controller: 'OptionsCtrl'
+      .when '/works',
         templateUrl: 'views/work.html'
         controller: 'WorkCtrl'
       .otherwise redirectTo: '/'

@@ -34,6 +34,7 @@ angular.module('chromeRobotApp')
     $scope.stop = ->
       if btn.stop == "Stop"
         btn.stop = "Stopping"
+      console.log btn.stop
 
       chrome.runtime.sendMessage stop: btn.stop
 
@@ -42,7 +43,9 @@ angular.module('chromeRobotApp')
         btn.pause = "Resume"
       else
         btn.pause = "Pause"
+      console.log btn.pause
       chrome.runtime.sendMessage pause: btn.pause
 
     $window.addEventListener "load", ->
+      console.log 'addEventListener load'
       chrome.runtime.onMessage.addListener messageDispatch
