@@ -31,20 +31,16 @@ module.exports = (grunt) ->
         tasks: ['jade:dist', 'htmlmin', 'usemin']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
-        tasks: ['coffee:dist', 'useminPrepare', 'concat']
+        tasks: ['coffee:dist']
       coffeeTest:
         files: ['test/spec/{,*/}*.coffee']
         tasks: ['coffee:test']
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
-      dev:
-        files: [
-          '<%= yeoman.app %>/scripts/background.js'
-          '<%= yeoman.app %>/scripts/contentscript.js'
-          '<%= yeoman.app %>/manifest.json'
-        ]
-        tasks: ['copy:dev']
+      manifest:
+        files: ['<%= yeoman.app %>/manifest.json']
+        tasks: ['copy:watch']
       # watch end
 
     connect:
@@ -83,7 +79,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= yeoman.app %>'
-          dest: '<%= yeoman.app %>'
+          dest: '.tmp'
           src: '{,*/}*.jade'
           ext: '.html'
         ]
@@ -108,7 +104,7 @@ module.exports = (grunt) ->
           expand: true
           cwd: '<%= yeoman.app %>/scripts'
           src: '{,*/}*.coffee'
-          dest: '<%= yeoman.app %>/scripts'
+          dest: '.tmp/scripts'
           ext: '.js'
         ]
       test:
@@ -142,18 +138,29 @@ module.exports = (grunt) ->
 
     # not used since Uglify task does concat,
     # but still available if needed
-    #concat:
-    #
+    concat:
+      dist:
+        files: [
+          '<%= yeoman.dist %>/scripts/background.js': [
+            '.tmp/scripts/background.js'
+          ]
+        ]
+
     # not enabled since usemin task does concat and uglify
     # check index.html to edit your build targets
     # enable this task if you prefer defining your build targets here
-    #uglify:
-    #  dist:
+    uglify:
+      dist:
+        files: [
+          '<%= yeoman.dist %>/scripts/background.js': [
+            '<%= yeoman.dist %>/scripts/background.js'
+          ]
+        ]
 
     useminPrepare:
       options:
         dest: '<%= yeoman.dist %>'
-      html: ['<%= yeoman.app %>/{,*/}*.html']
+      html: ['.tmp/index.html']
 
     usemin:
       options:
@@ -201,7 +208,7 @@ module.exports = (grunt) ->
           # removeOptionalTags: true
         files: [
           expand: true
-          cwd: '<%= yeoman.app %>'
+          cwd: '.tmp'
           src: [
             '*.html'
             'views/*.html'
@@ -219,38 +226,24 @@ module.exports = (grunt) ->
           dest: '<%= yeoman.dist %>'
           src: [
             '*.{ico,png,txt}'
-            'bower_components/**/*'
             'images/{,*/}*.{webp,gif}'
             '_locales/{,*/}*.json'
             'styles/fonts/*'
+            'manifest.json'
           ]
         ,
           expand: true
           cwd: '.tmp/images'
           dest: '<%= yeoman.dist %>/images'
           src: [ 'generated/*' ]
-        ,
-          expand: true
-          dot: true
-          cwd: '<%= yeoman.app %>'
-          dest: '<%= yeoman.dist %>'
-          src: [
-            'scripts/background.js'
-            'scripts/contentscript.js'
-            'manifest.json'
-          ]
         ]
-      dev:
+      watch:
         files: [
           expand: true
           dot: true
           cwd: '<%= yeoman.app %>'
           dest: '<%= yeoman.dist %>'
-          src: [
-            'scripts/background.js'
-            'scripts/contentscript.js'
-            'manifest.json'
-          ]
+          src: ['manifest.json']
         ]
 
     concurrent:
@@ -269,15 +262,6 @@ module.exports = (grunt) ->
         'svgmin'
         'htmlmin'
       ]
-
-    chromeManifest:
-      dist:
-        options:
-          buildnumber: false
-          background:
-            target:'scripts/background.js'
-        src: ['<%= yeoman.app %>']
-        dest: '<%= yeoman.dist %>'
 
     compress:
       dist:
@@ -298,7 +282,6 @@ module.exports = (grunt) ->
           src: '{,*/}*.js'
           dest: '<%= yeoman.dist %>/scripts'
         ]
-
 
   grunt.registerTask 'test', [
     'clean:server'

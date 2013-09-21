@@ -7,16 +7,18 @@ html(ng-app="chromeRobotApp", ng-csp="")
     link(href="styles/main.css", rel="stylesheet")
   body
     .container(ng-view="")
+    // build:js({.tmp,app}) scripts/modules.js
     script(src="bower_components/jquery/jquery.js")
     script(src="bower_components/angular/angular.js")
-    // build:js scripts/modules.js
     script(src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js")
     script(src="bower_components/angular-route/angular-route.js")
     script(src="bower_components/angular-resource/angular-resource.js")
     script(src="bower_components/angular-sanitize/angular-sanitize.js")
     // endbuild
-    // build:js scripts/scripts.js
+    // build:js({.tmp,app}) scripts/app.js
     script(src="scripts/app.js")
-    script(src="scripts/controllers/main.js")
-    script(src="scripts/controllers/work.js")
+    script(src="scripts/route.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/controllers.js
+    script(src="scripts/controllers/**/*.js")
     // endbuild
