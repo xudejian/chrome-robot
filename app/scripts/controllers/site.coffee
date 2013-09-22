@@ -23,6 +23,9 @@ trimAfter = (string, sep) ->
     string
 
 angular.module('chromeRobotApp')
+  .controller 'SitesCtrl', ($scope) ->
+
+angular.module('chromeRobotApp')
   .controller 'SiteNewCtrl', ($scope) ->
     $scope.update_regex = ->
       update_regex $scope.site

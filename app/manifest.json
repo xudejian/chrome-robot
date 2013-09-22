@@ -15,8 +15,9 @@
       }
     },
     "permissions": [
+      "https://www.google-analytics.com/",
+      "offline_enabled": true,
       "identity",
-      "storage",
       "unlimitedStorage",
       "notifications",
       "geolocation",

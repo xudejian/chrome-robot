@@ -1,6 +1,6 @@
 'use strict'
 
 angular.module 'chromeRobotApp', [
-  'ngRoute'
+  'ui.router'
   'ui.bootstrap'
 ]
