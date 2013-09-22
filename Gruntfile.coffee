@@ -1,5 +1,7 @@
 # jshint camelcase: false
 'use strict'
+LIVERELOAD_PORT = 35729
+lrSnippet = require('connect-livereload') port: LIVERELOAD_PORT
 mountFolder = (connect, dir) ->
   connect.static require('path').resolve(dir)
 
@@ -19,6 +21,10 @@ module.exports = (grunt) ->
   yeomanConfig =
     app: 'app'
     dist: 'dist'
+
+  try
+    yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app
+  catch e
 
   grunt.initConfig
     yeoman: yeomanConfig
@@ -41,6 +47,15 @@ module.exports = (grunt) ->
       manifest:
         files: ['<%= yeoman.app %>/manifest.json']
         tasks: ['copy:watch']
+      livereload:
+        options:
+          livereload: LIVERELOAD_PORT
+        files: [
+          '.tmp/{,*/}*.html'
+          '.tmp/styles/{,*/}*.css'
+          '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js'
+          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+        ]
       # watch end
 
     connect:
@@ -48,6 +63,14 @@ module.exports = (grunt) ->
         port: 9000
         # change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost'
+      livereload:
+        options:
+          middleware: (connect) ->
+            return [
+              lrSnippet
+              mountFolder connect, '.tmp'
+              mountFolder connect, yeomanConfig.app
+            ]
       test:
         options:
           middleware: (connect) ->
@@ -55,7 +78,16 @@ module.exports = (grunt) ->
               mountFolder connect, '.tmp'
               mountFolder connect, 'test'
             ]
+      dist:
+        options:
+          middleware: (connect) ->
+            return [
+              mountFolder connect, yeomanConfig.dist
+            ]
       # connect end
+    open:
+      server:
+        url: 'http://localhost:<%= connect.options.port %>'
 
     clean:
       dist:
@@ -99,6 +131,9 @@ module.exports = (grunt) ->
       # mocha end
 
     coffee:
+      options:
+        sourceMap: true
+        sourceRoot: ''
       dist:
         files: [
           expand: true
@@ -252,7 +287,7 @@ module.exports = (grunt) ->
         'compass:server'
       ]
       test: [
-        'coffee'
+        #'coffee'
         'compass'
       ]
       dist: [
@@ -283,11 +318,28 @@ module.exports = (grunt) ->
           dest: '<%= yeoman.dist %>/scripts'
         ]
 
+    karma:
+      unit:
+        configFile: 'karma.conf.js'
+        singleRun: true
+
+  grunt.registerTask 'server', (target) ->
+    if target == 'dist'
+      return grunt.task.run ['build', 'open', 'connect:dist:keepalive']
+
+    grunt.task.run [
+      'clean:server'
+      'concurrent:server'
+      'connect:livereload'
+      'open'
+      'watch'
+    ]
+
   grunt.registerTask 'test', [
     'clean:server'
     'concurrent:test'
     'connect:test'
-    'mocha'
+    'karma'
   ]
 
   grunt.registerTask 'build', [
