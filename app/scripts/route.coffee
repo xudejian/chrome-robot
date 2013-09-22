@@ -11,4 +11,7 @@ angular.module('chromeRobotApp')
       .when '/works',
         templateUrl: 'views/work.html'
         controller: 'WorkCtrl'
+      .when '/sites/new',
+        templateUrl: 'views/site/new.html'
+        controller: 'SiteNewCtrl'
       .otherwise redirectTo: '/'

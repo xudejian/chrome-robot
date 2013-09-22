@@ -27,11 +27,11 @@ module.exports = (grunt) ->
         spawn: true
         atBegin: true
       jade:
-        files: ['<%= yeoman.app %>/{,*/}*.jade']
-        tasks: ['jade:dist', 'htmlmin', 'usemin']
+        files: ['<%= yeoman.app %>/{,views/**/}*.jade']
+        tasks: ['jade:dist', 'useminPrepare', 'htmlmin', 'concat', 'usemin']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
-        tasks: ['coffee:dist']
+        tasks: ['coffee:dist', 'useminPrepare', 'concat']
       coffeeTest:
         files: ['test/spec/{,*/}*.coffee']
         tasks: ['coffee:test']
@@ -80,7 +80,7 @@ module.exports = (grunt) ->
           expand: true
           cwd: '<%= yeoman.app %>'
           dest: '.tmp'
-          src: '{,*/}*.jade'
+          src: '{,views/**/}*.jade'
           ext: '.html'
         ]
       # jade end
@@ -165,7 +165,7 @@ module.exports = (grunt) ->
     usemin:
       options:
         dirs: ['<%= yeoman.dist %>']
-      html: ['<%= yeoman.dist %>/{,*/}*.html']
+      html: ['<%= yeoman.dist %>/{,views/**/}*.html']
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css']
 
     imagemin:
@@ -211,7 +211,7 @@ module.exports = (grunt) ->
           cwd: '.tmp'
           src: [
             '*.html'
-            'views/*.html'
+            'views/**/*.html'
           ]
           dest: '<%= yeoman.dist %>'
         ]

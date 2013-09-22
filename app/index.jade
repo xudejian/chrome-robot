@@ -9,11 +9,11 @@ html(ng-app="chromeRobotApp", ng-csp="")
     header.header.navbar.navbar-fixed-top
       .navbar-inner
         .container
-          a.brand(href="#") Chrome Robot
+          a.brand(href="#/") Chrome Robot
           ul.nav
             li.divider-vertical
             li
-              a(href="#")
+              a(href="#/")
                 i.icon-home
                 |  Home
             li.divider-vertical
@@ -26,6 +26,11 @@ html(ng-app="chromeRobotApp", ng-csp="")
               a(href="#/works")
                 i.icon-tasks
                 |  Works
+            li.divider-vertical
+            li
+              a(href="#/sites/new")
+                i.icon-plus
+                |  Site
             li.divider-vertical
     .container
       .row(ng-view="")
