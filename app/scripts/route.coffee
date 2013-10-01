@@ -18,7 +18,7 @@ angular.module('chromeRobotApp')
       .state 'sites',
         url: '/sites'
         templateUrl: 'views/site/list.html'
-        controller: 'SitesCtrl'
+        controller: 'SiteCtrl'
       .state 'sites.new',
         url: '/new'
         templateUrl: 'views/site/new.html'

@@ -23,7 +23,7 @@ trimAfter = (string, sep) ->
     string
 
 angular.module('chromeRobotApp')
-  .controller 'SitesCtrl', ($scope) ->
+  .controller 'SiteCtrl', ($scope) ->
 
 angular.module('chromeRobotApp')
   .controller 'SiteNewCtrl', ($scope) ->
