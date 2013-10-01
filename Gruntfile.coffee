@@ -30,6 +30,7 @@ module.exports = (grunt) ->
     yeoman: yeomanConfig
     watch:
       options:
+        livereload: LIVERELOAD_PORT
         spawn: false
         atBegin: true
       jade:
@@ -37,10 +38,13 @@ module.exports = (grunt) ->
         tasks: ['jade:dist']
       index_html:
         files: ['.tmp/index.html']
-        tasks: ['useminPrepare', 'htmlmin', 'concat', 'usemin']
+        tasks: ['useminPrepare', 'htmlmin', 'concat']
+      html:
+        files: ['.tmp/views/**/*.html']
+        tasks: ['htmlmin']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
-        tasks: ['coffee:dist', 'useminPrepare', 'concat']
+        tasks: ['coffee:dist']
       coffeeTest:
         files: ['test/spec/{,*/}*.coffee']
         tasks: []
@@ -50,9 +54,10 @@ module.exports = (grunt) ->
       manifest:
         files: ['<%= yeoman.app %>/manifest.json']
         tasks: ['copy:watch']
+      background:
+        files: ['.tmp/scripts/background.js']
+        tasks: ['concat']
       livereload:
-        options:
-          livereload: LIVERELOAD_PORT
         files: [
           '.tmp/{,views/**/}*.html'
           '.tmp/styles/{,*/}*.css'
