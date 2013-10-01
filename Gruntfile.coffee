@@ -30,17 +30,20 @@ module.exports = (grunt) ->
     yeoman: yeomanConfig
     watch:
       options:
-        spawn: true
+        spawn: false
         atBegin: true
       jade:
         files: ['<%= yeoman.app %>/{,views/**/}*.jade']
-        tasks: ['jade:dist', 'useminPrepare', 'htmlmin', 'concat', 'usemin']
+        tasks: ['jade:dist']
+      index_html:
+        files: ['.tmp/index.html']
+        tasks: ['useminPrepare', 'htmlmin', 'concat', 'usemin']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
         tasks: ['coffee:dist', 'useminPrepare', 'concat']
       coffeeTest:
         files: ['test/spec/{,*/}*.coffee']
-        tasks: ['coffee:test']
+        tasks: []
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
@@ -51,11 +54,12 @@ module.exports = (grunt) ->
         options:
           livereload: LIVERELOAD_PORT
         files: [
-          '.tmp/{,*/}*.html'
+          '.tmp/{,views/**/}*.html'
           '.tmp/styles/{,*/}*.css'
           '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js'
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
+        tasks: []
       # watch end
 
     connect:
@@ -338,7 +342,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'test', [
     'clean:server'
     'concurrent:test'
-    'connect:test'
+    #'connect:test'
     'karma'
   ]
 
