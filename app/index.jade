@@ -49,6 +49,11 @@ html(ng-app="chromeRobotApp", ng-csp="")
     script(src="scripts/app.js")
     script(src="scripts/route.js")
     // endbuild
+    // build:js({.tmp,app}) scripts/services.js
+    script(src="scripts/services/site.js")
+    // endbuild
     // build:js({.tmp,app}) scripts/controllers.js
-    script(src="scripts/controllers/**/*.js")
+    script(src="scripts/controllers/main.js")
+    script(src="scripts/controllers/site.js")
+    script(src="scripts/controllers/work.js")
     // endbuild
