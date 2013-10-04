@@ -1,5 +1,8 @@
 'use strict'
 
 angular.module('chromeRobotApp')
-  .service 'Site', () ->
-    # AngularJS will instantiate a singleton by calling "new" on this function
+  .factory 'Site', (Config) ->
+    set: (site) ->
+      Config.site_save site
+    all: Config.sites
+

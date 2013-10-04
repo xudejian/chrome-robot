@@ -1,4 +1,3 @@
-# jshint camelcase: false
 'use strict'
 LIVERELOAD_PORT = 35729
 lrSnippet = require('connect-livereload') port: LIVERELOAD_PORT
@@ -21,6 +20,7 @@ module.exports = (grunt) ->
   yeomanConfig =
     app: 'app'
     dist: 'dist'
+    cmp: 'app'
 
   try
     yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app
@@ -32,16 +32,9 @@ module.exports = (grunt) ->
       options:
         livereload: LIVERELOAD_PORT
         spawn: false
-        atBegin: true
       jade:
         files: ['<%= yeoman.app %>/{,views/**/}*.jade']
         tasks: ['jade:dist']
-      index_html:
-        files: ['.tmp/index.html']
-        tasks: ['useminPrepare', 'htmlmin', 'concat']
-      html:
-        files: ['.tmp/views/**/*.html']
-        tasks: ['htmlmin']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
         tasks: ['coffee:dist']
@@ -51,20 +44,6 @@ module.exports = (grunt) ->
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
-      manifest:
-        files: ['<%= yeoman.app %>/manifest.json']
-        tasks: ['copy:watch']
-      background:
-        files: ['.tmp/scripts/background.js']
-        tasks: ['concat']
-      livereload:
-        files: [
-          '.tmp/{,views/**/}*.html'
-          '.tmp/styles/{,*/}*.css'
-          '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js'
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ]
-        tasks: []
       # watch end
 
     connect:
@@ -106,6 +85,7 @@ module.exports = (grunt) ->
             '.tmp'
             '<%= yeoman.app %>/{,*/}*.html'
             '<%= yeoman.app %>/scripts/{,*/}*.js'
+            '<%= yeoman.app %>/styles/{,*/}*.css'
             '<%= yeoman.dist %>/*'
             '!<%= yeoman.dist %>/.git*'
           ]
@@ -120,7 +100,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= yeoman.app %>'
-          dest: '.tmp'
+          dest: '<%= yeoman.cmp %>'
           src: '{,views/**/}*.jade'
           ext: '.html'
         ]
@@ -140,15 +120,12 @@ module.exports = (grunt) ->
       # mocha end
 
     coffee:
-      options:
-        sourceMap: true
-        sourceRoot: ''
       dist:
         files: [
           expand: true
           cwd: '<%= yeoman.app %>/scripts'
           src: '{,*/}*.coffee'
-          dest: '.tmp/scripts'
+          dest: '<%= yeoman.cmp %>/scripts'
           ext: '.js'
         ]
       test:
@@ -164,7 +141,7 @@ module.exports = (grunt) ->
     compass:
       options:
         sassDir: '<%= yeoman.app %>/styles'
-        cssDir: '.tmp/styles'
+        cssDir: '<%= yeoman.cmp %>/styles'
         generatedImagesDir: '.tmp/images/generated'
         imagesDir: '<%= yeoman.app %>/images'
         javascriptsDir: '<%= yeoman.app %>/scripts'
@@ -186,7 +163,7 @@ module.exports = (grunt) ->
       dist:
         files: [
           '<%= yeoman.dist %>/scripts/background.js': [
-            '.tmp/scripts/background.js'
+            '<%= yeoman.cmp %>/scripts/background.js'
           ]
         ]
 
@@ -204,7 +181,7 @@ module.exports = (grunt) ->
     useminPrepare:
       options:
         dest: '<%= yeoman.dist %>'
-      html: ['.tmp/index.html']
+      html: ['<%= yeoman.cmp %>/index.html']
 
     usemin:
       options:
@@ -252,7 +229,7 @@ module.exports = (grunt) ->
           # removeOptionalTags: true
         files: [
           expand: true
-          cwd: '.tmp'
+          cwd: '<%= yeoman.cmp %>'
           src: [
             '*.html'
             'views/**/*.html'
@@ -296,7 +273,7 @@ module.exports = (grunt) ->
         'compass:server'
       ]
       test: [
-        #'coffee'
+        'coffee'
         'compass'
       ]
       dist: [
@@ -328,8 +305,12 @@ module.exports = (grunt) ->
         ]
 
     karma:
+      server:
+        configFile: 'karma.conf.coffee'
+        background: true
+        singleRun: false
       unit:
-        configFile: 'karma.conf.js'
+        configFile: 'karma.conf.coffee'
         singleRun: true
 
   grunt.registerTask 'server', (target) ->
@@ -341,6 +322,7 @@ module.exports = (grunt) ->
       'concurrent:server'
       'connect:livereload'
       'open'
+      'karma:server'
       'watch'
     ]
 
@@ -348,7 +330,7 @@ module.exports = (grunt) ->
     'clean:server'
     'concurrent:test'
     #'connect:test'
-    'karma'
+    'karma:unit'
   ]
 
   grunt.registerTask 'build', [
@@ -370,5 +352,3 @@ module.exports = (grunt) ->
     'test'
     'build'
   ]
-
-  # end

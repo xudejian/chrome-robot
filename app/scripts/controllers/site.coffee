@@ -26,9 +26,13 @@ angular.module('chromeRobotApp')
   .controller 'SiteCtrl', ($scope) ->
 
 angular.module('chromeRobotApp')
-  .controller 'SiteNewCtrl', ($scope) ->
+  .controller 'SiteNewCtrl', ($scope, Site) ->
+    $scope.site =
+      name: 'cnbeta'
+      seed: 'http://www.cnbeta.com/'
     $scope.update_regex = ->
       update_regex $scope.site
 
     $scope.add_site = (site) ->
       console.log site
+      Site.set site

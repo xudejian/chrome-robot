@@ -4,7 +4,10 @@ html(ng-app="chromeRobotApp", ng-csp="")
     meta(charset="utf-8")
     title {{title}}
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    // build:css({.tmp,app}) styles/app.css
     link(href="styles/main.css", rel="stylesheet")
+    link(href="styles/work.css", rel="stylesheet")
+    // endbuild
   body
     header.header.navbar.navbar-fixed-top
       .navbar-inner
@@ -39,6 +42,7 @@ html(ng-app="chromeRobotApp", ng-csp="")
       .container
         p Super-powered by Dejian Xu ©2013
     // build:js({.tmp,app}) scripts/modules.js
+    script(src="bower_components/lodash/dist/lodash.js")
     script(src="bower_components/angular/angular.js")
     script(src="bower_components/angular-resource/angular-resource.js")
     script(src="bower_components/angular-sanitize/angular-sanitize.js")
@@ -50,6 +54,7 @@ html(ng-app="chromeRobotApp", ng-csp="")
     script(src="scripts/route.js")
     // endbuild
     // build:js({.tmp,app}) scripts/services.js
+    script(src="scripts/services/config.js")
     script(src="scripts/services/site.js")
     // endbuild
     // build:js({.tmp,app}) scripts/controllers.js
