@@ -1,7 +1,5 @@
 a.btn(ui-sref="sites.new") new site
 
-.row(ui-view='')
-
 table.table.table-striped.table-hover
   caption {{title}}
   thead
@@ -12,7 +10,7 @@ table.table.table-striped.table-hover
       th Status
       th Op
   tbody
-    tr(ng-repeat="site in sites")
+    tr(ng-repeat="site in sites", ng-click="detail(site)")
       td {{$index + 1}}
       td {{site.name}}
       td {{site.seed}}

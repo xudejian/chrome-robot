@@ -5,5 +5,8 @@ angular.module('chromeRobotApp')
     set: (site, cb) ->
       config.site_save site, cb
     all: (cb) ->
-      config.sites (data) ->
-        cb _.map data.sites, (item) -> item
+      config.sites cb
+    site: (name, cb) ->
+      config.site name, cb
+    destory: (name, cb) ->
+      config.site_destory name, cb
