@@ -1,4 +1,20 @@
-h1 {{title}}
+a.btn(ui-sref="sites.new") new site
 
-a(ui-sref="sites.new") new site
 .row(ui-view='')
+
+table.table.table-striped.table-hover
+  caption {{title}}
+  thead
+    tr
+      th #
+      th Site
+      th Seed
+      th Status
+      th Op
+  tbody
+    tr(ng-repeat="site in sites")
+      td {{$index + 1}}
+      td {{site.name}}
+      td {{site.seed}}
+      td
+      td

@@ -23,10 +23,14 @@ trimAfter = (string, sep) ->
     string
 
 angular.module('chromeRobotApp')
-  .controller 'SiteCtrl', ($scope) ->
+  .controller 'SiteCtrl', ($scope, Site) ->
+    Site.all (sites) ->
+      console.log 'load site once'
+      $scope.$apply ->
+        $scope.sites = sites
 
 angular.module('chromeRobotApp')
-  .controller 'SiteNewCtrl', ($scope, Site) ->
+  .controller 'SiteNewCtrl', ($scope, Site, $state) ->
     $scope.site =
       name: 'cnbeta'
       seed: 'http://www.cnbeta.com/'
@@ -34,5 +38,8 @@ angular.module('chromeRobotApp')
       update_regex $scope.site
 
     $scope.add_site = (site) ->
-      console.log site
-      Site.set site
+      Site.set site, ->
+        $state.go '^'
+
+    $scope.cancel = ->
+      $state.go '^'

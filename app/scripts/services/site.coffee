@@ -1,8 +1,9 @@
 'use strict'
 
 angular.module('chromeRobotApp')
-  .factory 'Site', (Config) ->
-    set: (site) ->
-      Config.site_save site
-    all: Config.sites
-
+  .factory 'Site', (config) ->
+    set: (site, cb) ->
+      config.site_save site, cb
+    all: (cb) ->
+      config.sites (data) ->
+        cb _.map data.sites, (item) -> item
