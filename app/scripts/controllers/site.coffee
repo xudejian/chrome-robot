@@ -30,8 +30,11 @@ angular.module('chromeRobotApp')
         $scope.sites = _.map sites, (item) -> item
 
     $scope.detail = (site) ->
-      console.log 'to detail', site
       $state.go '^.detail', site: site.name
+
+    $scope.stop = (site, $event) ->
+      $event.stopPropagation()
+      Site.stop site
 
 angular.module('chromeRobotApp')
   .controller 'SiteNewCtrl', ($scope, Site, $state) ->
@@ -62,7 +65,8 @@ angular.module('chromeRobotApp')
     $scope.cancel = ->
       $state.go '^.list'
 
-    $scope.stop = ->
+    $scope.stop = (site) ->
+      Site.stop site
       $state.go '^.list'
 
     $scope.destory = (site) ->

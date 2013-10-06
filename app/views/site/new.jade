@@ -1,4 +1,11 @@
-h1 Add Site
+ul.nav.nav-tabs
+  li
+    a(ui-sref="^.list") List
+  li.active
+    a
+      i.icon-plus-sign
+      | New Site
+
 p
   | Site Name:
   input(size=40, ng-model="site.name", type="text")
@@ -30,9 +37,6 @@ p
     |  Avoid links with arguments.
     small (e.g.&nbsp;page?foo=bar)
 p
-  button.btn.btn-primary(type='button', ng-click='add_site(site)')
-    i.icon-plus
-    | Add
+  button.btn.btn-primary(type='button', ng-click='add_site(site)') Add
 
-  button.btn(type='button', ng-click='cancel()')
-    | Cancel
+  button.btn(type='button', ng-click='cancel()') Cancel

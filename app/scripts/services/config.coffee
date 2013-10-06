@@ -2,6 +2,7 @@
 
 angular.module('chromeRobotApp')
   .factory 'config', ($q, $rootScope) ->
+    noop = angular.noop
     sync_get = (key) ->
       deferred = $q.defer()
       chrome.storage.sync.get key, (data) ->
@@ -17,7 +18,8 @@ angular.module('chromeRobotApp')
       deferred.promise
 
     sites = sync_get('sites').then (data) ->
-      data['sites'] or {}
+      data = data['sites'] or {}
+      _.each data, (v, k) -> delete data[k] unless v.name == k
 
     empty_site_config = (name) ->
       name: name
@@ -34,10 +36,10 @@ angular.module('chromeRobotApp')
       sites.then (data) ->
         delete data[name]
         sync_set(sites: data).then ->
-          (cb || angular.noop) data
+          (cb or noop) data
     site_save: (conf, cb) ->
       name = conf.name
       sites.then (data) ->
         data[name] = conf
         sync_set(sites: data).then ->
-          cb conf
+          (cb or noop) conf
