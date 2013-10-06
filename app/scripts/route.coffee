@@ -15,10 +15,19 @@ angular.module('chromeRobotApp')
         url: '/works'
         templateUrl: 'views/work.html'
         controller: 'WorkCtrl'
+
       .state 'sites',
         url: '/sites'
+        abstract: true
+        templateUrl: 'views/site.html'
+      .state 'sites.list',
+        url: ''
         templateUrl: 'views/site/list.html'
-        controller: 'SitesCtrl'
+        controller: 'SiteCtrl'
+      .state 'sites.detail',
+        url: '/detail/:site'
+        templateUrl: 'views/site/detail.html'
+        controller: 'SiteDetailCtrl'
       .state 'sites.new',
         url: '/new'
         templateUrl: 'views/site/new.html'

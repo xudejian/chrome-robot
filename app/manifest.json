@@ -14,11 +14,12 @@
         "scripts": ["scripts/background.js"]
       }
     },
+    "offline_enabled": true,
     "permissions": [
       "https://www.google-analytics.com/",
-      "offline_enabled": true,
       "identity",
       "unlimitedStorage",
+      "storage",
       "notifications",
       "geolocation",
       "contextMenus",

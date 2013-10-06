@@ -23,12 +23,52 @@ trimAfter = (string, sep) ->
     string
 
 angular.module('chromeRobotApp')
-  .controller 'SitesCtrl', ($scope) ->
+  .controller 'SiteCtrl', ($scope, Site, $state) ->
+    Site.all (sites) ->
+      $scope.sites_obj = sites
+      $scope.$watchCollection 'sites_obj', ->
+        $scope.sites = _.map sites, (item) -> item
+
+    $scope.detail = (site) ->
+      $state.go '^.detail', site: site.name
+
+    $scope.stop = (site, $event) ->
+      $event.stopPropagation()
+      Site.stop site
 
 angular.module('chromeRobotApp')
-  .controller 'SiteNewCtrl', ($scope) ->
+  .controller 'SiteNewCtrl', ($scope, Site, $state) ->
+    $scope.site =
+      name: 'cnbeta'
+      seed: 'http://www.cnbeta.com/'
     $scope.update_regex = ->
       update_regex $scope.site
 
     $scope.add_site = (site) ->
-      console.log site
+      Site.set site, ->
+        $state.go '^.list'
+
+    $scope.cancel = ->
+      $state.go '^.list'
+
+angular.module('chromeRobotApp')
+  .controller 'SiteDetailCtrl', ($scope, $state, $stateParams, Site) ->
+    Site.site $stateParams.site, (site) ->
+      $scope.site = site
+    $scope.update_regex = ->
+      update_regex $scope.site
+
+    $scope.save_site = (site) ->
+      Site.set site, ->
+        $state.go '^.list'
+
+    $scope.cancel = ->
+      $state.go '^.list'
+
+    $scope.stop = (site) ->
+      Site.stop site
+      $state.go '^.list'
+
+    $scope.destory = (site) ->
+      Site.destory site.name
+      $state.go '^.list'

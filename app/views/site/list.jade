@@ -1,4 +1,30 @@
-h1 {{title}}
+ul.nav.nav-tabs
+  li.active
+    a List
+  li
+    a(ui-sref="^.new")
+      i.icon-plus-sign
+      | New Site
 
-a(ui-sref="sites.new") new site
-.row(ui-view='')
+table.table.table-striped.table-hover
+  caption {{title}}
+  thead
+    tr
+      th #
+      th Site
+      th Seed
+      th Status
+      th Op
+  tbody
+    tr(ng-repeat="site in sites", ng-click="detail(site)")
+      td {{$index + 1}}
+      td {{site.name}}
+      td {{site.seed}}
+      td(ng-switch="site.stop")
+        span(ng-switch-when="true") Pause
+        span(ng-switch-default) Running
+      td
+        button.btn.btn-warning(type='button', ng-click='stop(site,$event)',
+        ng-show="!site.stop") Pause
+        button.btn.btn-info(type='button', ng-click='stop(site,$event)',
+        ng-show="!!site.stop") Resume

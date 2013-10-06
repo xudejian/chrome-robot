@@ -6,5 +6,6 @@ dist
 app/bower_components
 app/**/*.html
 app/scripts/**/*.js
+app/styles/**/*.css
 test/bower_components
 package
