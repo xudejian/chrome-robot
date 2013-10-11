@@ -1,6 +1,6 @@
 'use strict'
 angular.module('chromeRobotApp')
-  .config ($stateProvider, $urlRouterProvider) ->
+  .config ($stateProvider, $urlRouterProvider, $compileProvider) ->
     $urlRouterProvider.otherwise '/'
     $stateProvider
       .state 'main',
@@ -32,3 +32,9 @@ angular.module('chromeRobotApp')
         url: '/new'
         templateUrl: 'views/site/new.html'
         controller: 'SiteNewCtrl'
+
+
+    cur_wl = $compileProvider.imgSrcSanitizationWhitelist().toString()
+    add_wl = '|filesystem:chrome-extension:|blob:chrome-extension%3A'
+    new_wl = cur_wl.slice(0, -1) + add_wl + cur_wl.slice(-1)
+    $compileProvider.imgSrcSanitizationWhitelist new_wl

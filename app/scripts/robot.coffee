@@ -1,16 +1,5 @@
 'use strict'
 
-chrome.runtime.onInstalled.addListener (details) ->
-  console.log 'installed', details
-
-# Listens for the app launching then creates the window
-#
-# @see http://developer.chrome.com/trunk/apps/experimental.app.html
-# @see http://developer.chrome.com/trunk/apps/app.window.html
-
-chrome.app.runtime.onLaunched.addListener ->
-  chrome.app.window.create 'index.html'
-
 HTTP_REQUEST_TIMEOUT = 30 * 1000
 HEAD_REQUEST_TIMEOUT = 5 * 1000
 RESULTS_TITLE = 'Chrome Robot Work'
@@ -44,30 +33,6 @@ currentRequest =
 @popupLoaded = (doc) ->
   popupDoc = doc
   chrome.tabs.getSelected null, setDefaultUrl_
-
-setDefaultUrl_ = (tab) ->
-  if tab and tab.url and tab.url.match /^\s*https?:\/\//i
-    url = tab.url
-  else
-    url = 'http://www.example.com/'
-
-  popupDoc.getElementById('start').value = url
-
-  allowedText = url
-  allowedText = trimAfter allowedText, '#'
-  allowedText = trimAfter allowedText, '?'
-  offset = allowedText.lastIndexOf '/'
-  if offset > 'https://'.length
-    allowedText = allowedText.substring 0, offset + 1
-
-  allowedText = allowedText.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
-  allowedText = '^' + allowedText
-  popupDoc.getElementById('regex').value = allowedText
-
-  popupDoc.getElementById('plusone').checked = allowPlusOne
-  popupDoc.getElementById('arguments').checked = !allowArguments
-  popupDoc.getElementById('inline').checked = checkInline
-  popupDoc.getElementById('scripts').checked = checkScripts
 
 trimAfter = (string, sep) ->
   offset = string.indexOf sep

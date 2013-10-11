@@ -17,6 +17,8 @@
     "offline_enabled": true,
     "permissions": [
       "https://www.google-analytics.com/",
+      "http://*/",
+      "https://*/",
       "identity",
       "unlimitedStorage",
       "storage",

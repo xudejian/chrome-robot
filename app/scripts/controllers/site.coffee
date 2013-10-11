@@ -26,6 +26,9 @@ angular.module('chromeRobotApp')
   .controller 'SiteCtrl', ($scope, Site, $state) ->
     Site.all (sites) ->
       $scope.sites_obj = sites
+      for key, site of sites
+        Site.get_logo site, (data) ->
+          site.ico = window.webkitURL.createObjectURL data
       $scope.$watchCollection 'sites_obj', ->
         $scope.sites = _.map sites, (item) -> item
 
