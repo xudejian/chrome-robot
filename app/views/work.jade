@@ -1,23 +1,25 @@
 img(src="images/icon-128.png", align="right")
 h1 {{title}}
 
+button.btn(type="button", ng-model="btn.start", ng-click="start()")
+  {{btn.start}}
 button.btn(type="button", ng-model="btn.pause", ng-click="pause()") {{btn.pause}}
 button.btn(type="button", ng-model="btn.stop", ng-click="stop()") {{btn.stop}}
 table
   tr
     td Starting on:
-    td#startingOn
+    td {{site.seed}}
   tr
     td Restrict to:
-    td#restrictTo
+    td {{site.regex}}
   tr
     td Queue:
-    td#queue 0
+    td {{site.queue}}
   tr
     td Status:
-    td#status Initializing...
+    td {{site.status}}
 
-table#resultsTable
+table
   colgroup
     col(style="width: 32%")
     col(style="width: 32%")
@@ -27,4 +29,8 @@ table#resultsTable
       th.nocase Requested URL
       th.nocase Returned URL
       th.nocase Referrer
-  tbody#resultbody
+  tbody
+    tr
+      td request url
+      td returned url
+      td referer

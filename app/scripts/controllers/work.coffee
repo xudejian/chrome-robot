@@ -24,28 +24,34 @@ insertResultBodyTR = (innerHTML) ->
 
 
 angular.module('chromeRobotApp')
-  .controller 'WorkCtrl', ($scope, $window, $rootScope) ->
+  .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http) ->
     $rootScope.title = 'Chrome Robot Work'
+
+    Site.site 'cnbeta', (site) ->
+      $scope.site = site
+
     $scope.btn = btn =
       stop:'Stop'
       pause:'Pause'
-    console.log 'work load'
+      start: 'Start'
 
+    $scope.start = ->
+      site = $scope.site
+      $http.get(site.seed)
+        .then (data, status) ->
+          console.log data, status
     $scope.stop = ->
       if btn.stop == "Stop"
         btn.stop = "Stopping"
-      console.log btn.stop
 
-      chrome.runtime.sendMessage stop: btn.stop
+      chrome.runtime.sendMessage stop: true
 
     $scope.pause = ->
       if btn.pause == "Pause"
         btn.pause = "Resume"
       else
         btn.pause = "Pause"
-      console.log btn.pause
-      chrome.runtime.sendMessage pause: btn.pause
+      chrome.runtime.sendMessage pause: true
 
     $window.addEventListener "load", ->
-      console.log 'addEventListener load'
       chrome.runtime.onMessage.addListener messageDispatch

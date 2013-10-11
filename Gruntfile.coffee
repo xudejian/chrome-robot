@@ -35,12 +35,15 @@ module.exports = (grunt) ->
       jade:
         files: ['<%= yeoman.app %>/{,views/**/}*.jade']
         tasks: ['jade:dist']
+      jadeTest:
+        files: ['test/test.jade']
+        tasks: ['jade:test']
       coffee:
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
         tasks: ['coffee:dist']
       coffeeTest:
-        files: ['test/spec/{,*/}*.coffee']
-        tasks: []
+        files: ['test/{,**/}*.coffee']
+        tasks: ['coffee:test']
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
@@ -104,6 +107,11 @@ module.exports = (grunt) ->
           src: '{,views/**/}*.jade'
           ext: '.html'
         ]
+      test:
+        options:
+          pretty: true
+        files:
+          '<%= yeoman.app %>/test.html': 'test/test.jade'
       # jade end
 
     jshint:
@@ -131,9 +139,9 @@ module.exports = (grunt) ->
       test:
         files: [
           expand: true
-          cwd: 'test/spec'
-          src: '{,*/}*.coffee'
-          dest: '.tmp/spec'
+          cwd: 'test'
+          src: '{,**/}*.coffee'
+          dest: '<%= yeoman.cmp %>/test'
           ext: '.js'
         ]
       # coffee end
@@ -309,6 +317,7 @@ module.exports = (grunt) ->
         configFile: 'karma.conf.coffee'
         background: true
         singleRun: false
+        autoWatch: true
       unit:
         configFile: 'karma.conf.coffee'
         singleRun: true

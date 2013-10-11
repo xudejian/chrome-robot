@@ -2,25 +2,14 @@
 
 HTTP_REQUEST_TIMEOUT = 30 * 1000
 HEAD_REQUEST_TIMEOUT = 5 * 1000
-RESULTS_TITLE = 'Chrome Robot Work'
-SPIDER_MIME = [
+MIME = [
   'text/html'
   'text/plain'
   'text/xml'
 ]
 
-popupDoc = null
-allowedText = ''
-allowedRegex = null
-allowPlusOne = false
-allowArguments = false
-checkInline = false
-checkScripts = false
 pagesTodo = {}
 pagesDone = {}
-spiderTab = null
-resultsTab = null
-httpRequest = null
 httpRequestWatchDogPid = 0
 newTabWatchDogPid = 0
 started = false

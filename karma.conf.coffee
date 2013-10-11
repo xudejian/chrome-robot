@@ -15,7 +15,6 @@ module.exports = (config) ->
     files: [
       'app/bower_components/angular/angular.js'
       'app/bower_components/angular-ui-router/release/angular-ui-router.js'
-      'app/bower_components/angular-resource/angular-resource.js'
       'app/bower_components/angular-sanitize/angular-sanitize.js'
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js'
       'app/bower_components/angular-mocks/angular-mocks.js'
@@ -23,7 +22,7 @@ module.exports = (config) ->
       'app/scripts/route.coffee'
       'app/scripts/services/**/*.coffee'
       'app/scripts/controllers/**/*.coffee'
-      'app/scripts/**/*.coffee'
+      'app/scripts/*/**/*.coffee'
       'test/mock/**/*.coffee'
       'test/spec/**/*.coffee'
     ]

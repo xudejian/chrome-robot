@@ -20,6 +20,16 @@ show_app_window = ->
     minHeight: 768
   chrome.app.window.create 'index.html#/works', opt, (app_window) ->
     app_window.contentWindow.onload = ->
+      test = app_window.contentWindow.document.getElementById('test')
+      test.onclick = ->
+        opt =
+          id: 'mocha-robot-test'
+          bounds:
+            width: 1024
+            height: 768
+        href = test.getAttribute 'href'
+        chrome.app.window.create href, opt
+
     chrome.storage.local.set windowVisible: true
     app_window.onClosed.addListener ->
       chrome.storage.local.set windowVisible: false
