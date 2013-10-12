@@ -1,6 +1,6 @@
 'use strict'
 
-window.chrome = chrome =
+chrome =
   storage:
     local:
       get: ->
@@ -8,6 +8,8 @@ window.chrome = chrome =
     sync:
       get: ->
       set: ->
+
+window.chrome = window.chrome || chrome
 
 angular.module('mockedChrome', [])
   .value 'chrome', chrome

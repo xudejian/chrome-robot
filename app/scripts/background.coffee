@@ -12,8 +12,6 @@ show_app_window = ->
   opt =
     id: 'chrome-robot'
     bounds:
-      width: 1024
-      height: 768
       left: 10
       top: 10
     minWidth: 1024
@@ -24,9 +22,7 @@ show_app_window = ->
       test.onclick = ->
         opt =
           id: 'mocha-robot-test'
-          bounds:
-            width: 1024
-            height: 768
+          minWidth: 1024
         href = test.getAttribute 'href'
         chrome.app.window.create href, opt
 

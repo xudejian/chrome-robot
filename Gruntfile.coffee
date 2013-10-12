@@ -31,7 +31,7 @@ module.exports = (grunt) ->
     watch:
       options:
         livereload: LIVERELOAD_PORT
-        spawn: false
+        spawn: true
       jade:
         files: ['<%= yeoman.app %>/{,views/**/}*.jade']
         tasks: ['jade:dist']

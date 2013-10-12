@@ -2,5 +2,10 @@
 
 angular.module('chromeRobotApp')
   .factory 'utils', () ->
+
+    url =
+      home: (url) ->
+        infos = url.split ':', 2
+
     utils =
-      hi: -> 'hello'
+      url: url

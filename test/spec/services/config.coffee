@@ -11,8 +11,8 @@ describe 'Service: config', () ->
     config = _config_
 
   it 'should been defined service config', () ->
-    expect(!!config).toBe true
+    expect(!!config).to.be.true
 
   describe 'api: config.site', () ->
     it 'should have a function site to load/set robot site config', () ->
-      expect(config.sites).toBeDefined()
+      expect(config.sites).to.be.a 'function'

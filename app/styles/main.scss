@@ -5,6 +5,10 @@ $iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
 @import "bootstrap-sass/lib/responsive";
 
 /* Put your CSS here */
+html {
+  overflow-y: scroll;
+}
+
 html, body {
   margin: 0;
 }
