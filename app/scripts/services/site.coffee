@@ -1,7 +1,7 @@
 'use strict'
 
 angular.module('chromeRobotApp')
-  .factory 'Site', (config, $http) ->
+  .factory 'Site', (config, $http, utils) ->
     set: (site, cb) ->
       config.site_save site, cb
     all: (cb) ->
@@ -14,5 +14,8 @@ angular.module('chromeRobotApp')
     destory: (name, cb) ->
       config.site_destory name, cb
     get_logo: (site, cb) ->
-      $http.get('http://www.cnbeta.com/favicon.ico', responseType: 'blob')
-        .success cb
+      favicon = utils.url.home(site.seed) + '/favicon.ico'
+      console.log favicon
+      $http.get(favicon, responseType: 'blob')
+        .success (data) ->
+          cb site, data

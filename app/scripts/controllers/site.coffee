@@ -27,7 +27,8 @@ angular.module('chromeRobotApp')
     Site.all (sites) ->
       $scope.sites_obj = sites
       for key, site of sites
-        Site.get_logo site, (data) ->
+        delete site.ico if site.ico
+        Site.get_logo site, (site, data) ->
           site.ico = window.webkitURL.createObjectURL data
       $scope.$watchCollection 'sites_obj', ->
         $scope.sites = _.map sites, (item) -> item
