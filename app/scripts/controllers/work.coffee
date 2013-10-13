@@ -27,6 +27,7 @@ angular.module('chromeRobotApp')
   .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http) ->
     $rootScope.title = 'Chrome Robot Work'
 
+    $scope.jobs = []
     Site.site 'cnbeta', (site) ->
       $scope.site = site
 
@@ -36,10 +37,17 @@ angular.module('chromeRobotApp')
       start: 'Start'
 
     $scope.start = ->
-      site = $scope.site
-      $http.get(site.seed)
+      site =
+        url: $scope.site.seed
+        get_url_count: 0
+        site: $scope.site
+        referrer: $scope.site.seed
+        status: 'fetching'
+      $scope.jobs.push site
+      $http.get(site.url)
         .then (data, status) ->
-          console.log data, status
+          site.status = status
+          site.data = data
     $scope.stop = ->
       if btn.stop == "Stop"
         btn.stop = "Stopping"

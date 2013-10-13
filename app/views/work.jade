@@ -30,7 +30,7 @@ table
       th.nocase Returned URL
       th.nocase Referrer
   tbody
-    tr
-      td request url
-      td returned url
-      td referer
+    tr(ng-repeat="req in jobs")
+      td {{req.url}}
+      td {{req.get_url_count}}
+      td {{req.referrer}}
