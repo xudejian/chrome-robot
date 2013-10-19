@@ -1,115 +1,126 @@
 'use strict'
 
-HTTP_REQUEST_TIMEOUT = 30 * 1000
-HEAD_REQUEST_TIMEOUT = 5 * 1000
-MIME = [
-  'text/html'
-  'text/plain'
-  'text/xml'
-]
+class Robot
+  todo = []
+  done = {}
+  currentRequest =
+    requestedURL:null
+    returnedURL:null
+    referrer:null
+  HTTP_REQUEST_TIMEOUT = 30 * 1000
+  HEAD_REQUEST_TIMEOUT = 5 * 1000
+  MIME = [
+    'text/html'
+    'text/plain'
+    'text/xml'
+  ]
 
-pagesTodo = {}
-pagesDone = {}
-httpRequestWatchDogPid = 0
-newTabWatchDogPid = 0
-started = false
-paused = false
-currentRequest =
-  requestedURL:null
-  returnedURL:null
-  referrer:null
+  constructor: (@name, @$http, @working=true) ->
 
-@popupLoaded = (doc) ->
-  popupDoc = doc
-  chrome.tabs.getSelected null, setDefaultUrl_
+  seed: (@seeds) ->
 
-trimAfter = (string, sep) ->
-  offset = string.indexOf sep
-  if offset != -1
-    return string.substring 0, offset
-  string
+  trimAfter = (string, sep) ->
+    offset = string.indexOf sep
+    if offset != -1
+      return string.substring 0, offset
+    string
 
-@popupGo = ->
+  add_job_url = (url, referrer) ->
+    add_job
+      url: url
+      get_url_count: 0
+      referrer: referrer
+      status: 'pending'
+  add_job = (job) ->
+    job.url = trimAfter job.url, '#'
+    return if done[job.url]
+    todo.push job
 
-  console.log 'popupGo'
-  popupStop()
+  job_fetch_done = (job, data, status) ->
+    job.status = status
+    done[job.url] = true
+    parse_fetched_content job, data
 
-  resultsWindows = chrome.extension.getViews type: 'tab'
-  console.log 'resultsWindows', resultsWindows
+  parse_fetched_content = (job, data) ->
+    job.document = utils.world data, job.url
+    job.links = utils.url.urls job.document
+    job.get_url_count = job.links.length
 
-  for x in resultsWindows
-    doc = x.document
-    console.log 'tab title: ', doc
-    if doc.title == RESULTS_TITLE
-      console.log x
-      doc.title = RESULTS_TITLE + ' - Closed'
+    add_job_url link, job.url for link in job.links
 
-  # Attempt to parse the allowed URL regex.
-  input = popupDoc.getElementById 'regex'
-  allowedText = input.value
-  try
-    allowedRegex = new RegExp allowedText
-  catch e
-    alert 'Restrict regex error:\n' + e
-    popupStop()
-    return
+  do_job_once: ->
+    job = todo.shift()
+    job.status = 'fetching'
+    @$http.get(job.url)
+      .success (data, status) ->
+        job_fetch_done job, data, status
 
-  #Save settings for checkboxes.
-  allowPlusOne = popupDoc.getElementById('plusone').checked
-  allowArguments = !popupDoc.getElementById('arguments').checked
-  checkInline = popupDoc.getElementById('inline').checked
-  checkScripts = popupDoc.getElementById('scripts').checked
+  prepare_from_seed: ->
+    add_job_url url, url for url in @seeds
 
-  # Initialize the todo and done lists.
-  pagesTodo = {}
-  pagesDone = {}
-  # Add the start page to the todo list.
-  startPage = popupDoc.getElementById('start').value
-  console.log 'startPage', startPage
-  pagesTodo[startPage] = '[root page]'
+  start: ->
+    @working = false
+    while @working and todo.length
+      do_job_once()
 
-  resultsLoadCallback_ = (tab) ->
-    console.log 'resultsTab', tab
-    resultsTab = tab
-    window.setTimeout resultsLoadCallbackDelay_, 100
+  stop: ->
+    @working = true
 
-  resultsLoadCallbackDelay_ = ->
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"startingOn"
-      action:"setInnerHTML"
-      value:setInnerSafely startPage
+  httpRequestChange = ->
+    return if (!httpRequest || httpRequest.readyState < 2)
 
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"restrictTo"
-      action:"setInnerHTML"
-      value:setInnerSafely allowedText
-    # Start spidering.
-    started = true
-    spiderPage()
+    code = httpRequest.status
+    mime = httpRequest.getResponseHeader('Content-Type') || '[none]'
+    httpRequest = null
+    clearTimeout(httpRequestWatchDogPid)
+    setStatus('Prefetched ' + currentRequest.requestedURL + ' (' + mime + ')')
 
-  # Open a tab for the results.
-  chrome.tabs.create url: '/index.html#/works', resultsLoadCallback_
+    # 'SPIDER_MIME' is a list of allowed mime types.
+    # 'mime' could be in the form of "text/html charset=utf-8"
+    # For each allowed mime type, check for its presence in 'mime'.
+    mimeOk = false
+    for x in SPIDER_MIME
+      if mime.indexOf(x) != -1
+        mimeOk = true
+        break
 
-setInnerSafely = (msg) ->
-  msg.toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    # If this is a redirect or an HTML page, open it in a new tab and
+    # look for links to follow.  Otherwise, move on to next page.
+    is_redirect = ->
+      return false unless currentRequest.requestedURL.match allowedRegex
+      return true if code >= 300 and code < 400
+      return code < 300 and mimeOk
+    if is_redirect()
+      setStatus('Fetching ' + currentRequest.requestedURL)
+      newTabWatchDogPid = setTimeout(newTabWatchDog, HTTP_REQUEST_TIMEOUT)
+      chrome.tabs.create(
+        url: currentRequest.requestedURL
+        selected: false
+        , spiderLoadCallback_)
+    else
+      currentRequest.returnedURL = "Skipped"
+      recordPage(currentRequest)
+
+      setTimeout(spiderPage, 1)
+
+  get_web: (url, config) ->
+    xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = ->
+      if xhr.readyState == 4
+        responseHeaders = xhr.getAllResponseHeaders()
+
+        completeRequest(callback,
+            status || xhr.status,
+            (xhr.responseType ? xhr.response : xhr.responseText),
+            responseHeaders)
+    xhr.open 'GET', url, true
+    xhr.send()
 
 popupStop = ->
-  started= false
-  pagesTodo = {}
-  closeSpiderTab()
-  spiderTab = null
-  resultsTab = null
-  window.clearTimeout httpRequestWatchDogPid
-  window.clearTimeout newTabWatchDogPid
-  popupDoc.getElementById('robot_go').disabled = false
+  clearTimeout httpRequestWatchDogPid
+  clearTimeout newTabWatchDogPid
 
 spiderPage = ->
-  console.log 'spiderPage'
   currentRequest =
     requestedURL:null
     returnedURL:null
@@ -137,16 +148,13 @@ spiderPage = ->
 
   # Fetch this page using Ajax.
   setStatus 'Prefetching ' + url
-  httpRequestWatchDogPid = window.setTimeout httpRequestWatchDog, HEAD_REQUEST_TIMEOUT
+  httpRequestWatchDogPid = setTimeout httpRequestWatchDog, HEAD_REQUEST_TIMEOUT
   httpRequest = new XMLHttpRequest()
   httpRequest.onreadystatechange = httpRequestChange
   httpRequest.open 'HEAD', url, false
-  # For some reason this request only works intermitently when called directly.
-  # Delay request by 1ms.
-  window.setTimeout (-> httpRequest.send(null)), 1
+  setTimeout (-> httpRequest.send(null)), 0
 
 httpRequestWatchDog = ->
-  console.log("httpRequestWatchDog")
   setStatus('Aborting HTTP Request')
   if httpRequest
     httpRequest.abort()
@@ -154,10 +162,9 @@ httpRequestWatchDog = ->
     currentRequest.returnedURL=null
     recordPage(currentRequest)
     httpRequest = null
-  window.setTimeout(spiderPage, 1)
+  setTimeout spiderPage, 0
 
 newTabWatchDog = ->
-  console.log("newTabWatchDog")
   setStatus('Aborting New Tab')
   closeSpiderTab()
 
@@ -165,77 +172,10 @@ newTabWatchDog = ->
   currentRequest.returnedURL=null
   recordPage(currentRequest)
 
-  window.setTimeout(spiderPage, 1)
-
-httpRequestChange = ->
-  console.log("httpRequestChange")
-
-  # Still loading.  Wait for it.
-  return if (!httpRequest || httpRequest.readyState < 2)
-
-  code = httpRequest.status
-  mime = httpRequest.getResponseHeader('Content-Type') || '[none]'
-  httpRequest = null
-  window.clearTimeout(httpRequestWatchDogPid)
-  setStatus('Prefetched ' + currentRequest.requestedURL + ' (' + mime + ')')
-
-  # 'SPIDER_MIME' is a list of allowed mime types.
-  # 'mime' could be in the form of "text/html charset=utf-8"
-  # For each allowed mime type, check for its presence in 'mime'.
-  mimeOk = false
-  for x in SPIDER_MIME
-    if mime.indexOf(x) != -1
-      mimeOk = true
-      break
-
-  # If this is a redirect or an HTML page, open it in a new tab and
-  # look for links to follow.  Otherwise, move on to next page.
-  is_redirect = ->
-    return false unless currentRequest.requestedURL.match allowedRegex
-    return true if code >= 300 and code < 400
-    return code < 300 and mimeOk
-  if is_redirect()
-    setStatus('Fetching ' + currentRequest.requestedURL)
-    newTabWatchDogPid = window.setTimeout(newTabWatchDog, HTTP_REQUEST_TIMEOUT)
-    chrome.tabs.create(
-      url: currentRequest.requestedURL
-      selected: false
-      , spiderLoadCallback_)
-  else
-    currentRequest.returnedURL = "Skipped"
-    recordPage(currentRequest)
-
-    window.setTimeout(spiderPage, 1)
-
-spiderLoadCallback_ = (tab) ->
-  spiderTab = tab
-  setStatus('Spidering ' + spiderTab.url)
-  chrome.tabs.executeScript spiderTab.id, file: 'spider.js'
-
-#Add listener for message events from the injected spider code.
-chrome.extension.onMessage.addListener (request, sender, sendResponse) ->
-  if 'links' in request
-    spiderInjectCallback request.links, request.inline, request.scripts, request.url
-
-  if 'stop' in request
-    if started
-      if request.stop =="Stopping"
-        setStatus("Stopped")
-        chrome.tabs.sendMessage resultsTab.id,
-          method:"getElementById"
-          id:"stopSpider"
-          action:"setValue"
-          value:"Stopped"
-        popupStop()
-  if 'pause' in request
-    if request.pause =="Resume" && started && !paused
-      paused=true
-    if request.pause =="Pause" && started && paused
-      paused=false
-      spiderPage()
+  setTimeout spiderPage, 0
 
 spiderInjectCallback = (links, inline, scripts, url) ->
-  window.clearTimeout(newTabWatchDogPid)
+  clearTimeout(newTabWatchDogPid)
 
   setStatus('Scanning ' + url)
   currentRequest.returnedURL = url
@@ -260,53 +200,5 @@ spiderInjectCallback = (links, inline, scripts, url) ->
   # Close this page and mark done.
   recordPage(currentRequest)
   # We want a slight delay before closing as a tab may have scripts loading
-  window.setTimeout (-> closeSpiderTab()), 18
-  window.setTimeout (-> spiderPage()), 20
-
-
-closeSpiderTab = ->
-  if spiderTab
-    chrome.tabs.remove spiderTab.id
-    spiderTab = null
-
-recordPage = ->
-  if currentRequest.requestedURL != null and currentRequest.returnedURL == null
-    codeclass = 'x0'
-    currentRequest.returnedURL = "Error"
-  cu = currentRequest.requestedURL
-  cu = "<a href='#{cu}' target='spiderpage' title='#{cu}'>#{cu}</a>"
-  value = '<td>' + cu + '</td>' +
-    '<td class="' + codeclass + '"><span title="' + currentRequest.returnedURL + '">' + currentRequest.returnedURL + '</span></td>' +
-    '<td><span title="' + currentRequest.referrer + '">' + currentRequest.referrer + '</span></td>'
-
-  chrome.tabs.sendMessage resultsTab.id,
-    method:"custom"
-    action:"insertResultBodyTR"
-    value:value
-
-setStatus = (msg) ->
-  return unless started
-
-  try
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"stopSpider"
-      action:"getValue"
-    , (response) ->
-      if started and (response == "" || response == null)
-        popupStop()
-        alert 'Lost access to results pane. Halting.'
-
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"queue"
-      action:"setInnerHTML"
-      value:Object.keys(pagesTodo).length
-
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"status"
-      action:"setInnerHTML"
-      value:setInnerSafely(msg)
-  catch err
-    popupStop()
+  setTimeout (-> closeSpiderTab()), 18
+  setTimeout (-> spiderPage()), 20
