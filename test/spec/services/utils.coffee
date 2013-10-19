@@ -10,6 +10,11 @@ describe 'factory: utils', () ->
   beforeEach inject (_utils_) ->
     utils = _utils_
 
+  describe 'DOMParser html', ->
+    describe '.world()', ->
+      it 'should return document when call it', ->
+        doc = utils.world '<a href="/something">test</a>', 'http://www.example.com/'
+        expect(doc).to.be.an 'object'
   describe 'url parse', ->
     describe 'url.home()', ->
       it 'should return home uri when call it', ->
@@ -23,3 +28,7 @@ describe 'factory: utils', () ->
       it 'should not support ftp://', ->
         url = utils.url.home 'ftp://www.google.com/url?q=x#yo'
         expect(url).to.be.false
+    describe 'url.urls()', ->
+      it 'should return home url when call it with <a href="/something">', ->
+        urls = utils.url.urls '<a href="/something">test</a>', 'http://www.example.com/'
+        expect(urls).to.eql ['http://www.example.com/something']
