@@ -11,7 +11,7 @@
     "default_locale": "en",
     "app": {
       "background": {
-        "scripts": ["scripts/background.js"]
+        "scripts": ["scripts/background.js", "scripts/robot.js"]
       }
     },
     "offline_enabled": true,
