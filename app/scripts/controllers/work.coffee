@@ -24,7 +24,7 @@ insertResultBodyTR = (innerHTML) ->
 
 
 angular.module('chromeRobotApp')
-  .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http) ->
+  .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http, utils) ->
     $rootScope.title = 'Chrome Robot Work'
 
     $scope.jobs = []
@@ -40,14 +40,31 @@ angular.module('chromeRobotApp')
       site =
         url: $scope.site.seed
         get_url_count: 0
-        site: $scope.site
         referrer: $scope.site.seed
-        status: 'fetching'
-      $scope.jobs.push site
-      $http.get(site.url)
-        .then (data, status) ->
-          site.status = status
-          site.data = data
+        status: 'pending'
+      add_job = (site) -> $scope.jobs.push site
+      add_job site
+
+      do_jobs = (jobs) ->
+        site = jobs.shift()
+        do (site) ->
+          site.status = 'fetching'
+          $http.get(site.url)
+            .success (data, status) ->
+              site.status = status
+              site.document = utils.world data, site.url
+              site.links = utils.url.urls site.document
+              site.get_url_count = site.links.length
+            .success ->
+              for link in site.links
+                n =
+                  url: link
+                  get_url_count: 0
+                  referrer: site.url
+                  status: 'pending'
+                add_job n
+      do_jobs $scope.jobs
+
     $scope.stop = ->
       if btn.stop == "Stop"
         btn.stop = "Stopping"

@@ -19,18 +19,16 @@ table
     td Status:
     td {{site.status}}
 
-table
-  colgroup
-    col(style="width: 32%")
-    col(style="width: 32%")
-    col(style="width: 32%")
+table.table.table-hover
   thead
     tr
-      th.nocase Requested URL
-      th.nocase Returned URL
-      th.nocase Referrer
+      th Requested URL
+      th Returned URL
+      th Referrer
+      th Status
   tbody
     tr(ng-repeat="req in jobs")
       td {{req.url}}
       td {{req.get_url_count}}
       td {{req.referrer}}
+      td {{req.status}}
