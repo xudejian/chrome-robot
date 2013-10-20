@@ -4,11 +4,20 @@ class Robot
   todo = []
   done = {}
   HTTP_REQUEST_TIMEOUT = 30 * 1000
+  FETCH_GAP = 10
 
   constructor: (@name, @nproc=1) ->
     @working=false
+    @seeds = []
 
-  seed: (@seeds) ->
+  list_re: (regexp) ->
+  info_re: (regexp) ->
+
+  seed: (seeds) ->
+    if Array.isArray seeds
+      @seeds = seeds
+    else if "string" == typeof seeds
+      @seeds = [ seeds ]
 
   trimAfter = (string, sep) ->
     offset = string.indexOf sep
@@ -26,10 +35,18 @@ class Robot
     job.url = trimAfter job.url, '#'
     return if done[job.url]
     todo.push job
+    msg =
+      op: 'todo'
+      job: job
+    chrome.runtime.sendMessage msg
 
   job_fetch_done = (job, data, status) ->
     job.status = status
     done[job.url] = true
+    msg =
+      op: 'fetch'
+      job: job
+    chrome.runtime.sendMessage msg
     parse_fetched_content job, data
 
   parse_fetched_content = (job, data) ->
@@ -54,7 +71,7 @@ class Robot
     next = ->
       return unless @working or todo.length
       do_job_once do_job
-    setTimeout next, 0
+    setTimeout next, FETCH_GAP
 
   prepare_from_seed: ->
     add_job_url url, url for url in @seeds

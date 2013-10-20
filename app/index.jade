@@ -9,7 +9,7 @@ html(ng-app="chromeRobotApp", ng-csp="")
     link(href="styles/work.css", rel="stylesheet")
     // endbuild
   body
-    header.header.navbar.navbar-fixed-top
+    header.header.navbar.navbar-fixed-top(ng-controller='HeaderCtrl')
       .navbar-inner
         .container
           a.brand(href="#/") Chrome Robot
@@ -36,7 +36,7 @@ html(ng-app="chromeRobotApp", ng-csp="")
                 |  Sites
             li.divider-vertical
             li
-              a#test(href="test.html")
+              a(href,ng-click="show_test('test.html')")
                 i.icon-flag
                 |  Test
             li.divider-vertical
@@ -56,6 +56,8 @@ html(ng-app="chromeRobotApp", ng-csp="")
     script(src="scripts/html-domparser.js")
     // endbuild
     // build:js({.tmp,app}) scripts/app.js
+    script(src="scripts/utils.js")
+    script(src="scripts/robot.js")
     script(src="scripts/app.js")
     script(src="scripts/route.js")
     // endbuild
@@ -65,6 +67,7 @@ html(ng-app="chromeRobotApp", ng-csp="")
     // endbuild
     // build:js({.tmp,app}) scripts/controllers.js
     script(src="scripts/controllers/main.js")
+    script(src="scripts/controllers/header.js")
     script(src="scripts/controllers/site.js")
     script(src="scripts/controllers/work.js")
     // endbuild
