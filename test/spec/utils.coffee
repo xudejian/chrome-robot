@@ -1,14 +1,6 @@
 'use strict'
 
-describe 'factory: utils', () ->
-
-  # load the service's module
-  beforeEach module 'chromeRobotApp'
-
-  # instantiate service
-  utils = {}
-  beforeEach inject (_utils_) ->
-    utils = _utils_
+describe 'utils', () ->
 
   describe 'DOMParser html', ->
     describe '.world()', ->
