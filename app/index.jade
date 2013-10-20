@@ -55,9 +55,13 @@ html(ng-app="chromeRobotApp", ng-csp="")
     script(src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js")
     script(src="scripts/html-domparser.js")
     // endbuild
-    // build:js({.tmp,app}) scripts/app.js
+    // build:js({.tmp,app}) scripts/utils.js
     script(src="scripts/utils.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/robot.js
     script(src="scripts/robot.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/app.js
     script(src="scripts/app.js")
     script(src="scripts/route.js")
     // endbuild

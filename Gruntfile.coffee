@@ -173,6 +173,16 @@ module.exports = (grunt) ->
           '<%= yeoman.dist %>/scripts/background.js': [
             '<%= yeoman.cmp %>/scripts/background.js'
           ]
+          '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js': [
+            '<%= yeoman.app %>/bower_components/mocha/mocha.js'
+            '<%= yeoman.app %>/bower_components/chai/chai.js'
+            '<%= yeoman.app %>/bower_components/sinon-chai/lib/sinon-chai.js'
+            '<%= yeoman.app %>/bower_components/sinonjs/sinon.js'
+            '<%= yeoman.app %>/test/config.js'
+          ]
+          '<%= yeoman.dist %>/scripts/angular-mocks.js': [
+            '<%= yeoman.app %>/bower_components/angular-mocks/angular-mocks.js'
+          ]
         ]
 
     # not enabled since usemin task does concat and uglify
@@ -183,6 +193,12 @@ module.exports = (grunt) ->
         files: [
           '<%= yeoman.dist %>/scripts/background.js': [
             '<%= yeoman.dist %>/scripts/background.js'
+          ]
+          '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js': [
+            '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js'
+          ]
+          '<%= yeoman.dist %>/scripts/angular-mocks.js': [
+            '<%= yeoman.dist %>/scripts/angular-mocks.js'
           ]
         ]
 
@@ -222,6 +238,9 @@ module.exports = (grunt) ->
             '.tmp/styles/{,*/}*.css'
             '<%= yeoman.app %>/styles/{,*/}*.css'
           ]
+          '<%= yeoman.dist %>/styles/mocha.css': [
+            '<%= yeoman.app %>/bower_components/mocha/mocha.css'
+          ]
 
     htmlmin:
       dist:
@@ -259,6 +278,7 @@ module.exports = (grunt) ->
             '_locales/{,*/}*.json'
             'styles/fonts/*'
             'manifest.json'
+            'test/**/*'
           ]
         ,
           expand: true
@@ -344,7 +364,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'build', [
     'clean:dist'
-    'jade:dist'
+    'jade'
     'useminPrepare'
     'concurrent:dist'
     'cssmin'
