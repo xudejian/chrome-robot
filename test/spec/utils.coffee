@@ -2,13 +2,12 @@
 
 describe 'utils', () ->
 
-  utils = window.utils
-
   describe 'DOMParser html', ->
     describe '.world()', ->
       it 'should return document when call it', ->
         doc = utils.world '<a href="/something">test</a>', 'http://www.example.com/'
         expect(doc).to.be.an 'object'
+
   describe 'url parse', ->
     describe 'url.home()', ->
       it 'should return home uri when call it', ->
