@@ -370,7 +370,7 @@ module.exports = (grunt) ->
     'cssmin'
     'concat'
     'ngmin'
-    'uglify'
+    #'uglify'
     'copy:dist'
     'usemin'
     'compress'
