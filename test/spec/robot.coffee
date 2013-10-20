@@ -2,9 +2,7 @@
 
 describe 'Robot', ->
 
-  robot = {}
-  beforeEach inject ($http) ->
-    robot = new Robot('test', $http)
+  robot = new window.Robot('test')
 
   it 'should been defined service config', () ->
     expect(!!robot).to.be.true

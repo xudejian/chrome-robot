@@ -1,7 +1,7 @@
 'use strict'
 
 angular.module('chromeRobotApp')
-  .factory 'Site', (config, $http, utils) ->
+  .factory 'Site', (config, $http) ->
     set: (site, cb) ->
       config.site_save site, cb
     all: (cb) ->

@@ -89,3 +89,5 @@ class Robot
       config.error 522
 
     tid = setTimeout timeout_handle, config.timeout
+
+@Robot = Robot

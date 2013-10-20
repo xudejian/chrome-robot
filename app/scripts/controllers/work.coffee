@@ -24,7 +24,7 @@ insertResultBodyTR = (innerHTML) ->
 
 
 angular.module('chromeRobotApp')
-  .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http, utils) ->
+  .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http) ->
     $rootScope.title = 'Chrome Robot Work'
 
     $scope.jobs = []

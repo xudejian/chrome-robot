@@ -2,6 +2,8 @@
 
 describe 'utils', () ->
 
+  utils = window.utils
+
   describe 'DOMParser html', ->
     describe '.world()', ->
       it 'should return document when call it', ->
