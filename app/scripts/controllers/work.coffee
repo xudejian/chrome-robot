@@ -4,7 +4,7 @@ angular.module('chromeRobotApp')
   .controller 'WorkCtrl', ($scope, $window, $rootScope, Site, $http) ->
     $rootScope.title = 'Chrome Robot Work'
 
-    $scope.jobs = []
+    $scope.jobs = {}
     Site.site 'cnbeta', (site) ->
       $scope.site = site
 
@@ -14,8 +14,6 @@ angular.module('chromeRobotApp')
       start: 'Start'
 
     $scope.start = ->
-      chrome.runtime.getBackgroundPage (bg) ->
-        console.log bg
       cnbeta = new Robot 'cnbeta'
       cnbeta.seed $scope.site.seed
       cnbeta.prepare_from_seed()
@@ -32,7 +30,11 @@ angular.module('chromeRobotApp')
         btn.pause = "Pause"
 
     message_handle = (request, sender, sendResponse) ->
+      job = request.job
       $scope.$apply ->
-        $scope.jobs.unshift request.job
+        if 20 < _.size $scope.jobs
+          p_job = _.find $scope.jobs, (job) -> _.isNumber job.status
+          delete $scope.jobs[p_job.url]
+        $scope.jobs[job.url] = job
 
     chrome.runtime.onMessage.addListener message_handle

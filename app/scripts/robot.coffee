@@ -3,6 +3,8 @@
 class Robot
   todo = []
   done = {}
+  list_re = []
+  info_re = []
   HTTP_REQUEST_TIMEOUT = 30 * 1000
   FETCH_GAP = 10
 
@@ -10,14 +12,18 @@ class Robot
     @working=false
     @seeds = []
 
-  list_re: (regexp) ->
-  info_re: (regexp) ->
+  merge_array = (arr, items) ->
+    items = [items] unless Array.isArray items
+    arr.push item for item in items when -1 is arr.indexOf item
+
+  add_list_re: (regexp) ->
+    merge_array list_re regexp
+
+  add_info_re: (regexp) ->
+    merge_array info_re regexp
 
   seed: (seeds) ->
-    if Array.isArray seeds
-      @seeds = seeds
-    else if "string" == typeof seeds
-      @seeds = [ seeds ]
+    merge_array @seeds seeds
 
   trimAfter = (string, sep) ->
     offset = string.indexOf sep
@@ -43,16 +49,16 @@ class Robot
   job_fetch_done = (job, data, status) ->
     job.status = status
     done[job.url] = true
-    msg =
-      op: 'fetch'
-      job: job
-    chrome.runtime.sendMessage msg
     parse_fetched_content job, data
 
   parse_fetched_content = (job, data) ->
-    job.document = utils.world data, job.url
-    job.links = utils.url.urls job.document
+    job.links = utils.url.urls utils.world data, job.url
     job.get_url_count = job.links.length
+
+    msg =
+      op: 'fetched'
+      job: job
+    chrome.runtime.sendMessage msg
 
     add_job_url link, job.url for link in job.links
 
