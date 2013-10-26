@@ -10,6 +10,25 @@ world = (html, base_url) ->
     doc.head.appendChild base
   doc
 
+FNM_CASEFOLD = 1
+FNM_PATHNAME = 2
+FNM_NOESCAPE = 4
+
+fnmatch = (pattern, flags) ->
+  parsedPattern = pattern
+    .replace(/\*\*\/\*/g, '**')
+    .replace(/\//g, 'FNMATCH_SEP')
+    .replace(/\*\*/g, 'FNMATCH_ALL')
+    .replace(/\*/g, 'FNMATCH_FOLDER')
+    .replace(/\\\?/g, 'FNMATCH_MATCH_ONE')
+    .replace(/((?!\\))\?/g, '$1.')
+    .replace(/FNMATCH_SEP/g, '\\/')
+    .replace(/FNMATCH_MATCH_ONE/g, '\\\?')
+    .replace(/FNMATCH_ALL/g, '.*')
+    .replace(/FNMATCH_FOLDER/g, '[^\\/]+')
+  parsedPattern = '^' + parsedPattern + '$'
+  new RegExp parsedPattern, flags
+
 url =
   is_http: (url) ->
     url = url.toLowerCase()
@@ -27,3 +46,4 @@ url =
 @utils =
   world: world
   url: url
+  fnmatch: fnmatch

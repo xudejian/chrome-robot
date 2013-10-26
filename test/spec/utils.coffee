@@ -5,7 +5,7 @@ describe 'utils', () ->
   describe 'DOMParser html', ->
     describe '.world()', ->
       it 'should return document when call it', ->
-        doc = utils.world '<a href="/something">test</a>', 'http://www.example.com/'
+        doc = utils.world '<a href="/something">test</a>', 'http://exam.p/'
         expect(doc).to.be.an 'object'
 
   describe 'url parse', ->
@@ -23,5 +23,55 @@ describe 'utils', () ->
         expect(url).to.be.false
     describe 'url.urls()', ->
       it 'should return home url when call it with <a href="/something">', ->
-        urls = utils.url.urls '<a href="/something">test</a>', 'http://www.example.com/'
-        expect(urls).to.eql ['http://www.example.com/something']
+        urls = utils.url.urls '<a href="/something">test</a>', 'http://exam.p/'
+        expect(urls).to.eql ['http://exam.p/something']
+
+  describe 'fnmatch', ->
+    fnmatch = utils.fnmatch
+    datas =
+      'normal': [
+        ['cat', 'cat', true]
+        ['cat', 'category', false]
+      ]
+      'casefold': [
+        ['cat', 'CAT', false]
+      ]
+      'wildcard': [
+        ['c?t', 'cat', true]
+        ['c??t', 'cat', false]
+        ['c*', 'cats', true]
+        ['c*t', 'c/a/b/t', false]
+      ]
+      'regexp': [
+        ['ca[a-z]', 'cat', true]
+        ['ca[^t]', 'cat', false]
+        ['c{at,ub}s', 'cats', true]
+      ]
+      'escape': [
+        ['\\?', '?', true]
+        ['\\a', 'a', true]
+        ['[\\?]', '?', true]
+        ['*', '.profile', false]
+        ['.*', '.profile', true]
+      ]
+      '**/* ** *': [
+        ['**/*', 'main.rb', true]
+        ['**/*', './main.rb', true]
+        ['**/*', 'lib/main.rb', true]
+        ['**', 'main.rb', true]
+        ['**', './main.rb', true]
+        ['**', 'lib/main.rb', true]
+        ['*', 'dave/.profile', false]
+      ]
+    assert = chai.assert
+    for desc, data of datas
+      do (desc, data) ->
+        describe desc, ->
+          for cas in data
+            do (cas) ->
+              it cas.join(' --- '), ->
+                re = fnmatch cas[0]
+                fm = re.test cas[1]
+                assert.strictEqual fm, cas[2], re
+          return
+    return
