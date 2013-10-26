@@ -40,20 +40,14 @@ html
     // endbuild
 
     // build:js({.tmp,app}) scripts/services.js
-    script(src="scripts/services/config.js")
-    script(src="scripts/services/site.js")
+    script(src="scripts/services.js")
     // endbuild
 
     // build:js({.tmp,app}) scripts/controllers.js
-    script(src="scripts/controllers/main.js")
-    script(src="scripts/controllers/header.js")
-    script(src="scripts/controllers/site.js")
-    script(src="scripts/controllers/work.js")
+    script(src="scripts/controllers.js")
     // endbuild
 
-    script(src="test/mock/chrome.js")
-    script(src="test/spec/robot.js")
-    script(src="test/spec/utils.js")
-    script(src="test/spec/services/config.js")
+    script(src="test/mock.js")
+    script(src="test/spec.js")
 
     script(src="test/run.js")

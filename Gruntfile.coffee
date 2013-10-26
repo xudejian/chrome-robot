@@ -39,10 +39,10 @@ module.exports = (grunt) ->
         files: ['test/test.jade']
         tasks: ['jade:test']
       coffee:
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
+        files: ['<%= yeoman.app %>/scripts/**/*.coffee']
         tasks: ['coffee:dist']
       coffeeTest:
-        files: ['test/{,**/}*.coffee']
+        files: ['test/**/*.coffee']
         tasks: ['coffee:test']
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
@@ -86,7 +86,7 @@ module.exports = (grunt) ->
           dot: true
           src: [
             '.tmp'
-            '<%= yeoman.app %>/{,*/}*.html'
+            '<%= yeoman.app %>/{,views/**/}*.html'
             '<%= yeoman.app %>/scripts/{,*/}*.js'
             '<%= yeoman.app %>/styles/{,*/}*.css'
             '<%= yeoman.dist %>/*'
@@ -129,21 +129,35 @@ module.exports = (grunt) ->
       # mocha end
 
     coffee:
+      options:
+        join: true
       dist:
         files: [
-          expand: true
-          cwd: '<%= yeoman.app %>/scripts'
-          src: '{,*/}*.coffee'
-          dest: '<%= yeoman.cmp %>/scripts'
-          ext: '.js'
+            expand: true
+            cwd: '<%= yeoman.app %>/scripts'
+            src: '*.coffee'
+            dest: '<%= yeoman.cmp %>/scripts'
+            ext: '.js'
+          ,
+            '<%= yeoman.cmp %>/scripts/controllers.js': [
+              '<%= yeoman.app %>/scripts/controllers/**/*.coffee'
+            ]
+          ,
+            '<%= yeoman.cmp %>/scripts/services.js': [
+              '<%= yeoman.app %>/scripts/services/**/*.coffee'
+            ]
         ]
       test:
         files: [
-          expand: true
-          cwd: 'test'
-          src: '{,**/}*.coffee'
-          dest: '<%= yeoman.cmp %>/test'
-          ext: '.js'
+            expand: true
+            cwd: 'test'
+            src: '*.coffee'
+            dest: '<%= yeoman.cmp %>/test'
+            ext: '.js'
+          ,
+            '<%= yeoman.cmp %>/test/mock.js': ['test/mock/**/*.coffee']
+          ,
+            '<%= yeoman.cmp %>/test/spec.js': ['test/spec/**/*.coffee']
         ]
       # coffee end
 
@@ -188,8 +202,9 @@ module.exports = (grunt) ->
     # enable this task if you prefer defining your build targets here
     uglify:
       options:
-        sourceMapRoot: '<%= yeoman.dist %>/scripts'
         sourceMap: (path) -> path.replace /\.js$/, '.js.map'
+        sourceMappingURL: (path) ->
+          path.replace(/.*\//, '').replace /\.js$/, '.js.map'
       dist:
         files: [
           '<%= yeoman.dist %>/scripts/background.js': [
@@ -208,7 +223,7 @@ module.exports = (grunt) ->
     usemin:
       options:
         dirs: ['<%= yeoman.dist %>']
-      html: ['<%= yeoman.dist %>/{,views/**/}*.html']
+      html: ['<%= yeoman.dist %>/*.html']
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css']
 
     imagemin:
