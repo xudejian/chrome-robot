@@ -11,14 +11,14 @@ world = (html, base_url) ->
   doc
 
 url =
-  home: (url) ->
+  is_http: (url) ->
     url = url.toLowerCase()
-    unless _.str.startsWith(url, 'http://') or
-        _.str.startsWith(url, 'https://')
-      return off
-    idx = url.indexOf '/', 8
-    return url if idx == -1
-    url.substr 0, idx
+    url.substr(0, 7) == 'http://' or url.substr(0, 8) == 'https://'
+  home: (uri) ->
+    return off unless url.is_http uri
+    idx = uri.indexOf '/', 8
+    return uri if idx == -1
+    uri.substr 0, idx
   urls: (doc, base_url) ->
     if base_url
       doc = world doc, base_url
