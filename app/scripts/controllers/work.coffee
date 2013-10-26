@@ -16,6 +16,7 @@ angular.module('chromeRobotApp')
     $scope.start = ->
       cnbeta = new Robot 'cnbeta'
       cnbeta.seed $scope.site.seed
+      cnbeta.add_info_re 'http://www.cnbeta.com/articles/\\d+.htm'
       cnbeta.prepare_from_seed()
       cnbeta.start()
 
@@ -31,10 +32,11 @@ angular.module('chromeRobotApp')
 
     message_handle = (request, sender, sendResponse) ->
       job = request.job
+      console.log request.op, request.job.url
       $scope.$apply ->
         if 20 < _.size $scope.jobs
           p_job = _.find $scope.jobs, (job) -> _.isNumber job.status
-          delete $scope.jobs[p_job.url]
+          delete $scope.jobs[p_job.url] if p_job
         $scope.jobs[job.url] = job
 
     chrome.runtime.onMessage.addListener message_handle
