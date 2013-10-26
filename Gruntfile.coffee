@@ -91,6 +91,7 @@ module.exports = (grunt) ->
             '<%= yeoman.app %>/styles/{,*/}*.css'
             '<%= yeoman.dist %>/*'
             '!<%= yeoman.dist %>/.git*'
+            'package'
           ]
         ]
       server: '.tmp'
@@ -180,15 +181,15 @@ module.exports = (grunt) ->
             '<%= yeoman.app %>/bower_components/sinonjs/sinon.js'
             '<%= yeoman.app %>/test/config.js'
           ]
-          '<%= yeoman.dist %>/scripts/angular-mocks.js': [
-            '<%= yeoman.app %>/bower_components/angular-mocks/angular-mocks.js'
-          ]
         ]
 
     # not enabled since usemin task does concat and uglify
     # check index.html to edit your build targets
     # enable this task if you prefer defining your build targets here
     uglify:
+      options:
+        sourceMapRoot: '<%= yeoman.dist %>/scripts'
+        sourceMap: (path) -> path.replace /\.js$/, '.js.map'
       dist:
         files: [
           '<%= yeoman.dist %>/scripts/background.js': [
@@ -196,9 +197,6 @@ module.exports = (grunt) ->
           ]
           '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js': [
             '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js'
-          ]
-          '<%= yeoman.dist %>/scripts/angular-mocks.js': [
-            '<%= yeoman.dist %>/scripts/angular-mocks.js'
           ]
         ]
 
@@ -285,6 +283,9 @@ module.exports = (grunt) ->
           cwd: '.tmp/images'
           dest: '<%= yeoman.dist %>/images'
           src: [ 'generated/*' ]
+        ,
+          '<%= yeoman.dist %>/scripts/angular-mocks.js':
+            '<%= yeoman.app %>/bower_components/angular-mocks/angular-mocks.js'
         ]
       watch:
         files: [
@@ -328,7 +329,11 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= yeoman.dist %>/scripts'
-          src: '{,*/}*.js'
+          src: [
+            'app.js'
+            'controllers.js'
+            'services.js'
+          ]
           dest: '<%= yeoman.dist %>/scripts'
         ]
 
@@ -370,7 +375,7 @@ module.exports = (grunt) ->
     'cssmin'
     'concat'
     'ngmin'
-    #'uglify'
+    'uglify'
     'copy:dist'
     'usemin'
     'compress'
