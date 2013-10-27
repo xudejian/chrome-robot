@@ -1,46 +1,10 @@
 h1 Site Detail
-p
-  | Site Name:
-  input(size=40, ng-model="site.name", type="text")
-p
-  | Start on:
-  input(size=40, ng-model="site.seed", type="url")
-p
-  | Restrict to:
-  input(size=40, ng-model="site.regex", type="text")
-  button(type="button", ng-click="update_regex()")
-    i.icon-refresh
-p
-  label
-    input(type="checkbox", ng-model="site.plusone")
-    |  Follow one link beyond restriction.
-p
-  label
-    input(type="checkbox", ng-model="site.inline")
-    |  Check inline content.
-    small (CSS, images)
-p
-  label
-    input(type="checkbox", ng-model="site.scripts")
-    |  Check script content.
-    small (JavaScript, Flash)
-p
-  label
-    input(type="checkbox", ng-model="site.arguments")
-    |  Avoid links with arguments.
-    small (e.g.&nbsp;page?foo=bar)
-p
-  button.btn.btn-primary(type='button', ng-click='save_site(site)')
-    | Save
 
-  button.btn(type='button', ng-click='cancel()')
-    | Cancel
+include form
 
 hr
 p Danger ops
 p
-  button.btn.btn-warning(type='button', ng-click='stop(site)',
-  ng-show="!site.stop") Pause
-  button.btn.btn-info(type='button', ng-click='stop(site)',
-  ng-show="!!site.stop") Resume
+  button.btn.btn-warning(type='button', ng-click='stop(site)', ng-show="!site.stop") Pause
+  button.btn.btn-info(type='button', ng-click='stop(site)', ng-show="!!site.stop") Resume
   button.btn.btn-danger(type='button', ng-click='destory(site)') Delete

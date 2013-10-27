@@ -6,37 +6,4 @@ ul.nav.nav-tabs
       i.icon-plus-sign
       | New Site
 
-p
-  | Site Name:
-  input(size=40, ng-model="site.name", type="text")
-p
-  | Start on:
-  input(size=40, ng-model="site.seed", type="url")
-p
-  | Restrict to:
-  input(size=40, ng-model="site.regex", type="text")
-  button(type="button", ng-click="update_regex()")
-    i.icon-refresh
-p
-  label
-    input(type="checkbox", ng-model="site.plusone")
-    |  Follow one link beyond restriction.
-p
-  label
-    input(type="checkbox", ng-model="site.inline")
-    |  Check inline content.
-    small (CSS, images)
-p
-  label
-    input(type="checkbox", ng-model="site.scripts")
-    |  Check script content.
-    small (JavaScript, Flash)
-p
-  label
-    input(type="checkbox", ng-model="site.arguments")
-    |  Avoid links with arguments.
-    small (e.g.&nbsp;page?foo=bar)
-p
-  button.btn.btn-primary(type='button', ng-click='add_site(site)') Add
-
-  button.btn(type='button', ng-click='cancel()') Cancel
+include form

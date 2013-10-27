@@ -19,9 +19,9 @@ table.table.table-striped.table-hover
     tr(ng-repeat="site in sites", ng-click="detail(site)")
       td {{$index + 1}}
       td
-        img(ng-src="{{site.ico}}", alt="{{site.name}}")
+        img(ng-show="site.ico", ng-src="{{site.ico}}", alt="{{site.name}}")
         | {{site.name}}
-      td {{site.seed}}
+      td {{site.seed.join(',')}}
       td(ng-switch="site.stop")
         span(ng-switch-when="true") Pause
         span(ng-switch-default) Running

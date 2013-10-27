@@ -14,8 +14,9 @@ angular.module('chromeRobotApp')
     destory: (name, cb) ->
       config.site_destory name, cb
     get_logo: (site, cb) ->
-      favicon = utils.url.home(site.seed) + '/favicon.ico'
-      console.log favicon
+      return unless Array.isArray site.seed
+      return unless utils.url.is_http site.seed[0]
+      favicon = utils.url.home(site.seed[0]) + '/favicon.ico'
       $http.get(favicon, responseType: 'blob')
         .success (data) ->
           cb site, data

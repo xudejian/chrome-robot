@@ -23,9 +23,9 @@ angular.module('chromeRobotApp')
 
     empty_site_config = (name) ->
       name: name
-      seed: ''
-      lists_regexp: []
-      infos_regexp: []
+      seed: []
+      list_regexp: []
+      info_regexp: []
 
     sites: (cb) ->
       sites.then cb

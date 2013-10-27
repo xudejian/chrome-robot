@@ -44,9 +44,24 @@ angular.module('chromeRobotApp')
   .controller 'SiteNewCtrl', ($scope, Site, $state) ->
     $scope.site =
       name: 'cnbeta'
-      seed: 'http://www.cnbeta.com/'
+      seed: ['http://www.cnbeta.com/']
+      list_regexp: []
+      info_regexp: []
     $scope.update_regex = ->
       update_regex $scope.site
+
+    concat_and_uniq = (site, name, value) ->
+      site[name] ?= []
+      site[name] = _.uniq site[name].concat value
+
+    $scope.add_seed = (site, seed) ->
+      concat_and_uniq site, 'seed', seed
+
+    $scope.add_list_regex = (site, regex) ->
+      concat_and_uniq site, 'list_regexp', regex
+
+    $scope.add_info_regex = (site, regex) ->
+      concat_and_uniq site, 'info_regexp', regex
 
     $scope.add_site = (site) ->
       Site.set site, ->
