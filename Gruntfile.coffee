@@ -301,14 +301,9 @@ module.exports = (grunt) ->
         ,
           '<%= yeoman.dist %>/scripts/angular-mocks.js':
             '<%= yeoman.app %>/bower_components/angular-mocks/angular-mocks.js'
-        ]
-      watch:
-        files: [
-          expand: true
-          dot: true
-          cwd: '<%= yeoman.app %>'
-          dest: '<%= yeoman.dist %>'
-          src: ['manifest.json']
+        ,
+          '<%= yeoman.dist %>/scripts/EventEmitter.js':
+            '<%= yeoman.app %>/bower_components/eventEmitter/EventEmitter.min.js'
         ]
 
     concurrent:

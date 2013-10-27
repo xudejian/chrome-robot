@@ -12,6 +12,7 @@
     "app": {
       "background": {
         "scripts": [
+          "scripts/EventEmitter.js",
           "scripts/utils.js",
           "scripts/background.js",
           "scripts/robot.js"
