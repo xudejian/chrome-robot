@@ -1,38 +1,5 @@
 'use strict'
 
-site_helper = ($state, Site) ->
-  to_regex = (str) ->
-    re = str || ''
-    re = re.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
-    "^#{re}"
-
-  concat_and_uniq = (site, name, value) ->
-    site[name] ?= []
-    site[name] = _.uniq site[name].concat value
-
-  helper =
-    suggest: (re) -> [ to_regex(re) ]
-
-    add_seed: (site, seed) ->
-      concat_and_uniq site, 'seed', seed
-
-    add_list_regex: (site, regex) ->
-      concat_and_uniq site, 'list_regexp', regex
-
-    add_info_regex: (site, regex) ->
-      concat_and_uniq site, 'info_regexp', regex
-
-    save: (site) ->
-      Site.set site, ->
-        $state.go '^.list'
-
-    cancel: ->
-      $state.go '^.list'
-
-    bind_action: ($scope, actions) ->
-      $scope[action] = helper[action] for action in actions when helper[action]
-
-
 angular.module('chromeRobotApp')
   .controller 'SiteCtrl', ($scope, Site, $state) ->
     Site.all (sites) ->
@@ -52,17 +19,57 @@ angular.module('chromeRobotApp')
       Site.stop site
 
 angular.module('chromeRobotApp')
-  .controller 'SiteNewCtrl', ($scope, Site, $state) ->
+  .controller 'SiteFormCtrl', ($scope, Site, $state) ->
 
-    helper = site_helper $state, Site
-    helper.bind_action $scope, [
-      'suggest'
-      'add_seed'
-      'add_list_regex'
-      'add_info_regex'
-      'save'
-      'cancel'
-    ]
+    to_regex = (str) ->
+      re = str || ''
+      re = re.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
+      "^#{re}"
+
+    concat_and_uniq = (site, name, value) ->
+      site[name] ?= []
+      site[name] = _.compact _.uniq site[name].concat value
+    without = (site, name, value) ->
+      site[name] ?= []
+      site[name] = _.without site[name], value
+
+    $scope.suggest = (re) ->
+      return [] if '^' is re.substr 0, 1
+      [ to_regex(re) ]
+
+    $scope.add_seed = (site) ->
+      concat_and_uniq site, 'seed', $scope.new_seed
+      $scope.new_seed = ''
+
+    $scope.add_list_regex = (site) ->
+      concat_and_uniq site, 'list_regexp', $scope.list_re
+      $scope.list_re = ''
+
+    $scope.add_info_regex = (site) ->
+      concat_and_uniq site, 'info_regexp', $scope.info_re
+      $scope.info_re = ''
+
+    $scope.rm_seed = (site, seed) ->
+      without site, 'seed', seed
+      $scope.new_seed = seed
+
+    $scope.rm_list_re = (site, regex) ->
+      without site, 'list_regexp', regex
+      $scope.list_re = regex
+
+    $scope.rm_info_re = (site, regex) ->
+      without site, 'info_regexp', regex
+      $scope.info_re = regex
+
+    $scope.save = (site) ->
+      Site.set site, ->
+        $state.go '^.list'
+
+    $scope.cancel = ->
+      $state.go '^.list'
+
+angular.module('chromeRobotApp')
+  .controller 'SiteNewCtrl', ($scope) ->
 
     $scope.site =
       name: 'cnbeta'
@@ -73,18 +80,8 @@ angular.module('chromeRobotApp')
 angular.module('chromeRobotApp')
   .controller 'SiteDetailCtrl', ($scope, $state, $stateParams, Site) ->
 
-    helper = site_helper $state, Site
-    helper.bind_action $scope, [
-      'suggest'
-      'add_seed'
-      'add_list_regex'
-      'add_info_regex'
-      'save'
-      'cancel'
-    ]
-
     Site.site $stateParams.site, (site) ->
-      $scope.site = site
+      $scope.site = angular.copy site
 
     $scope.stop = (site) ->
       Site.stop site

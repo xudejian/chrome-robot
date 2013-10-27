@@ -1,44 +1,53 @@
-.container
-  .row
-    .span2 Site Name:
-    .span9
-      input.span5(ng-model="site.name", type="text", placeholder="site name")
-  .row
-    .span2 Start Url:
-    .span9
+form.form-horizontal(ng-submit="save(site)", ng-controller="SiteFormCtrl")
+  .control-group
+    label.control-label(for='name') Site Name:
+    .controls
+      input.span5#name(ng-model="site.name", type="text",
+      placeholder="site name", required)
+  .control-group
+    label.control-label(for='seed') Start Url:
+    .controls
       ul
-        li(ng-repeat="seed in site.seed", ng-bind="seed")
+        li(ng-repeat="seed in site.seed")
+          | {{seed}}
+          button.btn.btn-link(type='button', ng-click='rm_seed(site, seed)')
+            i.icon-remove
       .input-append
-        input.span5(ng-model="new_seed", type="url",
-        placeholder="http://your.site.url.com/")
-        button.btn(type='button', ng-click='add_seed(site, new_seed)') Add
-  .row
-    .span2 list page like:
-    .span9
+        input.span5#seed(ng-model="new_seed", type="url",
+        placeholder="http://your.site.com/")
+        button.btn(type='button', ng-click='add_seed(site)') Add
+  .control-group
+    label.control-label(for='list_re') list page like:
+    .controls
       ul
-        li(ng-repeat="re in site.list_regexp", ng-bind="re")
+        li(ng-repeat="re in site.list_regexp")
+          | {{re}}
+          button.btn.btn-link(type='button', ng-click='rm_list_re(site, re)')
+            i.icon-remove
       .input-append
-        input.span5(ng-model="list_re", type="text",
+        input.span5#list_re(ng-model="list_re", type="text",
         typeahead="re for re in suggest($viewValue)",
         placeholder="list page url pattern")
-        button.btn(type="button", ng-click="add_list_regex(site, list_re)") Add
-  .row
-    .span2 info page like:
-    .span9
+        button.btn(type="button", ng-click="add_list_regex(site)") Add
+  .control-group
+    label.control-label(for='info_re') info page like:
+    .controls
       ul
-        li(ng-repeat="re in site.info_regexp", ng-bind="re")
+        li(ng-repeat="re in site.info_regexp")
+          | {{re}}
+          button.btn.btn-link(type='button', ng-click='rm_info_re(site, re)')
+            i.icon-remove
       .input-append
-        input.span5(ng-model="info_re", type="text",
+        input.span5#info_re(ng-model="info_re", type="text",
         typeahead="re for re in suggest($viewValue)",
         placeholder="info page url pattern")
-        button.btn(type="button", ng-click="add_info_regex(site, info_re)") Add
-  .row
-    .offset2
-      label
+        button.btn(type="button", ng-click="add_info_regex(site)") Add
+  .control-group
+    .controls
+      label.checkbox
         input(type="checkbox", ng-model="site.noquery")
         |  Avoid links with arguments.
         small (e.g.&nbsp;page?foo=bar)
-  .row
-    .offset2
-      button.btn.btn-primary(type='button', ng-click='save(site)') Add
-      button.btn(type='button', ng-click='cancel()') Cancel
+  .form-actions
+    button.btn.btn-primary(type='submit') Save
+    button.btn(type='button', ng-click='cancel()') Cancel
