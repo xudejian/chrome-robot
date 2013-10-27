@@ -1,26 +1,37 @@
 'use strict'
 
-update_regex = (site) ->
-  unless site.seed.match /^\s*https?:\/\//i
-    site.seed = 'http://www.example.com/'
+site_helper = ($state, Site) ->
+  to_regex = (str) ->
+    re = str || ''
+    re = re.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
+    "^#{re}"
 
-  regex = site.seed
-  regex = trimAfter regex, '#'
-  regex = trimAfter regex, '?'
-  offset = regex.lastIndexOf '/'
-  if offset > 'https://'.length
-    regex = regex.substring 0, offset + 1
+  concat_and_uniq = (site, name, value) ->
+    site[name] ?= []
+    site[name] = _.uniq site[name].concat value
 
-  regex = regex.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
-  regex = '^' + regex
-  site.regex = regex
+  helper =
+    suggest: (re) -> [ to_regex(re) ]
 
-trimAfter = (string, sep) ->
-  offset = string.indexOf sep
-  if offset != -1
-    string.substring 0, offset
-  else
-    string
+    add_seed: (site, seed) ->
+      concat_and_uniq site, 'seed', seed
+
+    add_list_regex: (site, regex) ->
+      concat_and_uniq site, 'list_regexp', regex
+
+    add_info_regex: (site, regex) ->
+      concat_and_uniq site, 'info_regexp', regex
+
+    save: (site) ->
+      Site.set site, ->
+        $state.go '^.list'
+
+    cancel: ->
+      $state.go '^.list'
+
+    bind_action: ($scope, actions) ->
+      $scope[action] = helper[action] for action in actions when helper[action]
+
 
 angular.module('chromeRobotApp')
   .controller 'SiteCtrl', ($scope, Site, $state) ->
@@ -42,47 +53,38 @@ angular.module('chromeRobotApp')
 
 angular.module('chromeRobotApp')
   .controller 'SiteNewCtrl', ($scope, Site, $state) ->
+
+    helper = site_helper $state, Site
+    helper.bind_action $scope, [
+      'suggest'
+      'add_seed'
+      'add_list_regex'
+      'add_info_regex'
+      'save'
+      'cancel'
+    ]
+
     $scope.site =
       name: 'cnbeta'
       seed: ['http://www.cnbeta.com/']
       list_regexp: []
       info_regexp: []
-    $scope.update_regex = ->
-      update_regex $scope.site
-
-    concat_and_uniq = (site, name, value) ->
-      site[name] ?= []
-      site[name] = _.uniq site[name].concat value
-
-    $scope.add_seed = (site, seed) ->
-      concat_and_uniq site, 'seed', seed
-
-    $scope.add_list_regex = (site, regex) ->
-      concat_and_uniq site, 'list_regexp', regex
-
-    $scope.add_info_regex = (site, regex) ->
-      concat_and_uniq site, 'info_regexp', regex
-
-    $scope.add_site = (site) ->
-      Site.set site, ->
-        $state.go '^.list'
-
-    $scope.cancel = ->
-      $state.go '^.list'
 
 angular.module('chromeRobotApp')
   .controller 'SiteDetailCtrl', ($scope, $state, $stateParams, Site) ->
+
+    helper = site_helper $state, Site
+    helper.bind_action $scope, [
+      'suggest'
+      'add_seed'
+      'add_list_regex'
+      'add_info_regex'
+      'save'
+      'cancel'
+    ]
+
     Site.site $stateParams.site, (site) ->
       $scope.site = site
-    $scope.update_regex = ->
-      update_regex $scope.site
-
-    $scope.save_site = (site) ->
-      Site.set site, ->
-        $state.go '^.list'
-
-    $scope.cancel = ->
-      $state.go '^.list'
 
     $scope.stop = (site) ->
       Site.stop site

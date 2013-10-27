@@ -17,6 +17,7 @@
       ul
         li(ng-repeat="re in site.list_regexp", ng-bind="re")
       input.span5(ng-model="list_re", type="text",
+      typeahead="re for re in suggest($viewValue)",
       placeholder="list page url pattern")
       button.btn(type="button", ng-click="add_list_regex(site, list_re)") Add
   .row
@@ -25,6 +26,7 @@
       ul
         li(ng-repeat="re in site.info_regexp", ng-bind="re")
       input.span5(ng-model="info_re", type="text",
+      typeahead="re for re in suggest($viewValue)",
       placeholder="info page url pattern")
       button.btn(type="button", ng-click="add_info_regex(site, info_re)") Add
   .row
@@ -35,5 +37,5 @@
         small (e.g.&nbsp;page?foo=bar)
   .row
     .offset2
-      button.btn.btn-primary(type='button', ng-click='add_site(site)') Add
+      button.btn.btn-primary(type='button', ng-click='save(site)') Add
       button.btn(type='button', ng-click='cancel()') Cancel
