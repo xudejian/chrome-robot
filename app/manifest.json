@@ -13,9 +13,11 @@
       "background": {
         "scripts": [
           "scripts/EventEmitter.js",
+          "scripts/html-domparser.js",
           "scripts/utils.js",
           "scripts/background.js",
-          "scripts/robot.js"
+          "scripts/robot.js",
+          "scripts/runner.js"
         ]
       }
     },
