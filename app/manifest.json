@@ -21,20 +21,12 @@
     },
     "offline_enabled": true,
     "permissions": [
-      "https://www.google-analytics.com/",
-      "http://*/",
-      "https://*/",
-      "identity",
-      "unlimitedStorage",
-      "storage",
-      "notifications",
-      "geolocation",
-      "contextMenus",
-      "webview",
-      {
-        "socket": [
-          "tcp-connect"
-        ]
-      }
+      "http://*/"
+      , "https://*/"
+      , "unlimitedStorage"
+      , "storage"
+      , "notifications"
+      , "idle"
+      , { "fileSystem": ["write"] }
     ]
 }
