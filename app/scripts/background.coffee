@@ -30,3 +30,6 @@ chrome.app.runtime.onRestarted.addListener ->
 
 chrome.runtime.onSuspend.addListener ->
   # Do some simple clean-up tasks.
+
+chrome.idle.onStateChanged.addListener (state) ->
+  console.log state
