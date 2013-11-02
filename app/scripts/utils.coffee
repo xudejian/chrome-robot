@@ -20,10 +20,11 @@ fnmatch = (pattern, flags) ->
     .replace(/\//g, 'FNMATCH_SEP')
     .replace(/\*\*/g, 'FNMATCH_ALL')
     .replace(/\*/g, 'FNMATCH_FOLDER')
-    .replace(/\\\?/g, 'FNMATCH_MATCH_ONE')
+    .replace(/\\\?/g, 'FNMATCH_Q_MARK')
+    .replace(/((?!\\))\./g, '$1\\.')
     .replace(/((?!\\))\?/g, '$1.')
     .replace(/FNMATCH_SEP/g, '\\/')
-    .replace(/FNMATCH_MATCH_ONE/g, '\\\?')
+    .replace(/FNMATCH_Q_MARK/g, '\\\?')
     .replace(/FNMATCH_ALL/g, '.*')
     .replace(/FNMATCH_FOLDER/g, '[^\\/]+')
   parsedPattern = '^' + parsedPattern + '$'

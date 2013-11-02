@@ -21,7 +21,7 @@ class Robot extends EventEmitter
 
     @options options
 
-  options: (options) ->
+  options: (options={}) ->
     @seed (options.seed || [])
     @add_info_re (options.info_re || [])
     @add_list_re (options.list_re || [])
