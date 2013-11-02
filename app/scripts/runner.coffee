@@ -1,7 +1,50 @@
 'use strict'
 
-cnbeta = new Robot 'cnbeta'
-cnbeta.seed 'http://www.cnbeta.com/'
-cnbeta.add_info_re 'http://www.cnbeta.com/articles/\\d+.htm'
-cnbeta.prepare_from_seed()
-cnbeta.start()
+bind_message = (robot) ->
+  robot.on 'response', (job) ->
+    msg =
+      op: 'fetched'
+      job: job
+    chrome.runtime.sendMessage msg
+  robot.on 'todo.list', (job) ->
+    msg =
+      op: 'todo'
+      job: job
+      type: 'list'
+    chrome.runtime.sendMessage msg
+  robot.on 'todo.info', (job) ->
+    msg =
+      op: 'todo'
+      job: job
+      type: 'info'
+    chrome.runtime.sendMessage msg
+
+chrome.idle.onStateChanged.addListener (state) ->
+  console.log state
+
+robots = {}
+
+robot_cmds =
+  start: (request, sender, sendResponse) ->
+    site = request.site || {}
+    return unless site.name and site.name.length
+    name = site.name || ''
+    unless robots[name]
+      robots[name] = robot = new Robot name, site
+      bind_message robot
+
+    robot = robots[name]
+    robot.stop()
+    robot.start()
+
+  stop: (request, sender, sendResponse) ->
+    site = request.site || {}
+    name = site.name || ''
+    return unless robots[name]
+    robots[name].stop()
+
+message_handle = (request, sender, sendResponse) ->
+  cmd = request.cmd || ''
+  op = robot_cmds[cmd] || ->
+  op request, sender, sendResponse
+chrome.runtime.onMessage.addListener message_handle
