@@ -30,11 +30,13 @@ class Robot extends EventEmitter
     @prepare_from_seed()
 
   merge_array = (arr, items) ->
-    console.log 'before', arr,items
     items = [items] unless Array.isArray items
-    for item in items when -1 is arr.indexOf item
+    indexOf = (arr, item) ->
+      item_str = item.toString()
+      return i for it,i in arr when it.toString() is item_str
+      return -1
+    for item in items when -1 is indexOf arr, item
       arr.push item
-    console.log 'after', arr
 
   add_list_re: (regexp) ->
     regexp = [regexp] unless Array.isArray regexp
