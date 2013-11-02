@@ -25,6 +25,11 @@ angular.module('chromeRobotApp')
       re = str || ''
       re = re.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
       "^#{re}"
+    append_star = (str) ->
+      if '*' is str.substr -1
+        str
+      else
+        "#{str}*"
 
     concat_and_uniq = (site, name, value) ->
       site[name] ?= []
@@ -35,7 +40,7 @@ angular.module('chromeRobotApp')
 
     $scope.suggest = (re) ->
       return [] if '^' is re.substr 0, 1
-      [ to_regex(re) ]
+      [append_star(re), to_regex(re)]
 
     $scope.add_seed = (site) ->
       concat_and_uniq site, 'seed', $scope.new_seed
