@@ -29,6 +29,11 @@ fnmatch = (pattern, flags) ->
   parsedPattern = '^' + parsedPattern + '$'
   new RegExp parsedPattern, flags
 
+smart_regexp = (pattern, flags) ->
+  if '^' is pattern.substr 0, 1
+    return new RegExp pattern, flags
+  return fnmatch pattern, flags
+
 url =
   is_http: (url) ->
     url = url.toLowerCase()
@@ -47,3 +52,4 @@ url =
   world: world
   url: url
   fnmatch: fnmatch
+  smart_regexp: smart_regexp
