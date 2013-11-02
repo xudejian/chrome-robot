@@ -22,7 +22,7 @@ describe 'Robot', ->
   re = 'http://www.robot.com/test/*.htm?'
   describe 'robot info_re ' + re, ->
 
-    options = info_re: [ re ]
+    options = info_regexp: [ re ]
     beforeEach ->
       robot.options options
 
@@ -49,10 +49,15 @@ describe 'Robot', ->
   re = 'http://www.robot.com/test/*.htm?'
   describe 'robot list_re ' + re, ->
 
-    options = list_re: [ re ]
+    options = list_regexp: [ re ]
     beforeEach ->
       robot.options options
 
     fn_match_re = utils.fnmatch re
     it "should contain #{fn_match_re}", ->
+      expect(robot.list_re).to.eql [fn_match_re]
+
+    it "should be #{fn_match_re} even call options twices", ->
+      robot.options options
+      robot.options options
       expect(robot.list_re).to.eql [fn_match_re]

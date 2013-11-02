@@ -7,30 +7,34 @@ class Robot extends EventEmitter
 
   constructor: (@name, options) ->
     @working = false
-    @seeds = []
     @nproc = 1
 
     @done = {}
+
     @todo = {}
-
-    @list_re = []
     @list_todo = []
-
-    @info_re = []
     @info_todo = []
 
+    @reset_options()
     @options options
+
+  reset_options: ->
+    @seeds = []
+    @list_re = []
+    @info_re = []
 
   options: (options={}) ->
     @seed (options.seed || [])
-    @add_info_re (options.info_re || [])
-    @add_list_re (options.list_re || [])
+    @add_info_re (options.info_regexp || [])
+    @add_list_re (options.list_regexp || [])
     @prepare_from_seed()
 
   merge_array = (arr, items) ->
+    console.log 'before', arr,items
     items = [items] unless Array.isArray items
     for item in items when -1 is arr.indexOf item
       arr.push item
+    console.log 'after', arr
 
   add_list_re: (regexp) ->
     regexp = [regexp] unless Array.isArray regexp
@@ -39,9 +43,9 @@ class Robot extends EventEmitter
 
   dump_regexp_list: ->
     console.log "-- info re --"
-    console.log re.toString() for re in @info_re
+    console.log i, re.toString() for re, i in @info_re
     console.log "-- list re --"
-    console.log re.toString() for re in @list_re
+    console.log i, re.toString() for re, i in @list_re
     return
 
   add_info_re: (regexp) ->

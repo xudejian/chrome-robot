@@ -27,14 +27,16 @@ robots = {}
 robot_cmds =
   start: (request, sender, sendResponse) ->
     site = request.site || {}
-    return unless site.name and site.name.length
     name = site.name || ''
+    return unless name and name.length
+    console.log request
     unless robots[name]
       robots[name] = robot = new Robot name, site
       bind_message robot
 
     robot = robots[name]
     robot.stop()
+    robot.options site
     robot.start()
 
   stop: (request, sender, sendResponse) ->
