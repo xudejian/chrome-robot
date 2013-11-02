@@ -45,3 +45,14 @@ describe 'Robot', ->
     notmatch = 'http://www1robot.com/test/1.html'
     it "should not match #{notmatch}", ->
       expect(robot.is_info(notmatch)).to.not.be.true
+
+  re = 'http://www.robot.com/test/*.htm?'
+  describe 'robot list_re ' + re, ->
+
+    options = list_re: [ re ]
+    beforeEach ->
+      robot.options options
+
+    fn_match_re = utils.fnmatch re
+    it "should contain #{fn_match_re}", ->
+      expect(robot.list_re).to.eql [fn_match_re]
