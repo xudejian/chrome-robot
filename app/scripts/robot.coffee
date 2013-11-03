@@ -8,10 +8,7 @@ class Robot extends EventEmitter
 
   constructor: (@name, options) ->
     @working = false
-    @_system_busy = false
     @nproc = 1
-    @fetch_gap = FETCH_IDLE_GAP
-
     @done = {}
 
     @todo = {}
@@ -20,6 +17,7 @@ class Robot extends EventEmitter
 
     @reset_options()
     @options options
+    @system_busy false
 
   reset_options: ->
     @seeds = []
@@ -30,6 +28,7 @@ class Robot extends EventEmitter
     @seed (options.seed || [])
     @add_info_re (options.info_regexp || [])
     @add_list_re (options.list_regexp || [])
+    @working = if options.stop then false else true
     @prepare_from_seed()
 
   merge_array = (arr, items) ->
@@ -158,8 +157,8 @@ class Robot extends EventEmitter
     @add_job_seed url for url in @seeds
 
   system_busy: (busy) ->
-    @_system_busy = busy || true
-    @fetch_gap = if @_system_busy then FETCH_BUSY_GAP else FETCH_IDLE_GAP
+    @_system_busy = not not busy
+    @fetch_gap = if busy then FETCH_BUSY_GAP else FETCH_IDLE_GAP
 
   start: ->
     @working = true
