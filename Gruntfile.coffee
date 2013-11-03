@@ -304,6 +304,9 @@ module.exports = (grunt) ->
         ,
           '<%= yeoman.dist %>/scripts/EventEmitter.js':
             '<%= yeoman.app %>/bower_components/eventEmitter/EventEmitter.min.js'
+        ,
+          '<%= yeoman.dist %>/scripts/bloomfilter.js':
+            '<%= yeoman.app %>/bower_components/bloomfilter.js/bloomfilter.js'
         ]
 
     concurrent:

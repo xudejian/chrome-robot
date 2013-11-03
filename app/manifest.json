@@ -14,6 +14,7 @@
         "scripts": [
           "scripts/EventEmitter.js",
           "scripts/html-domparser.js",
+          "scripts/bloomfilter.js",
           "scripts/utils.js",
           "scripts/background.js",
           "scripts/robot.js",
