@@ -19,34 +19,97 @@ bind_message = (robot) ->
       type: 'info'
     chrome.runtime.sendMessage msg
 
-chrome.idle.onStateChanged.addListener (state) ->
-  console.log state
-
 robots = {}
 
-robot_cmds =
-  start: (request, sender, sendResponse) ->
-    site = request.site || {}
-    name = site.name || ''
-    return unless name and name.length
-    console.log request
-    unless robots[name]
-      robots[name] = robot = new Robot name, site
-      bind_message robot
+start = (request) ->
+  site = request.site || {}
+  name = site.name || ''
+  return unless name and name.length
+  console.log request
+  unless robots[name]
+    robots[name] = robot = new Robot name
+    bind_message robot
 
-    robot = robots[name]
+  robot = robots[name]
+  robot.stop()
+  robot.options site
+  robot.start()
+
+stop = (request) ->
+  site = request.site || {}
+  name = site.name || ''
+  return unless robots[name]
+  robots[name].stop()
+
+remove = (request) ->
+  site = request.site || {}
+  name = site.name || ''
+  return unless robots[name]
+  robots[name].stop()
+  delete robots[name]
+
+reload = (request) ->
+  site = request.site || {}
+  name = site.name || ''
+  return unless name and name.length
+  unless robots[name]
+    robots[name] = robot = new Robot name
+    bind_message robot
+
+  robot = robots[name]
+  robot.options site
+  robot.start() unless site.stop
+
+stop_all = ->
+  for site, robot of robots
     robot.stop()
-    robot.options site
+resume_all = ->
+  for site, robot of robots when not site.stop
     robot.start()
 
-  stop: (request, sender, sendResponse) ->
-    site = request.site || {}
-    name = site.name || ''
-    return unless robots[name]
-    robots[name].stop()
+restart = ->
+  stop_all()
+  chrome.storage.sync.get 'sites', (data) ->
+    return unless data.sites
+    for name, site of data.sites when not site.stop
+      reload site: site
+
+noop = ->
+
+robot_cmds =
+  start: start
+  stop: stop
+  remove: remove
+  reload: reload
+  restart: restart
+  stop_all: stop_all
+  resume_all: resume_all
 
 message_handle = (request, sender, sendResponse) ->
   cmd = request.cmd || ''
-  op = robot_cmds[cmd] || ->
+  op = robot_cmds[cmd] || noop
   op request, sender, sendResponse
 chrome.runtime.onMessage.addListener message_handle
+
+unless first_run
+  first_run = true
+  restart()
+
+on_idle = ->
+  for site, robot of robots
+    robot.system_busy false
+
+on_system_busy = ->
+  for site, robot of robots
+    robot.system_busy true
+
+idle_event =
+  idle: on_idle
+  locked: on_idle
+  active: on_system_busy
+
+idle_bind = (state) ->
+  (idle_event[state] || noop)()
+
+chrome.idle.onStateChanged.addListener idle_bind
+chrome.runtime.onSuspend.addListener ->

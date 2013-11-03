@@ -2,12 +2,15 @@
 
 class Robot extends EventEmitter
   HTTP_REQUEST_TIMEOUT = 30 * 1000
-  FETCH_GAP = 10
+  FETCH_IDLE_GAP = 10
+  FETCH_BUSY_GAP = 3 * 1000
   FETCH_WAIT_REQ = 3 * 1000
 
   constructor: (@name, options) ->
     @working = false
+    @_system_busy = false
     @nproc = 1
+    @fetch_gap = FETCH_IDLE_GAP
 
     @done = {}
 
@@ -149,10 +152,14 @@ class Robot extends EventEmitter
       unless @info_todo.length or @list_todo.length
         return setTimeout next, FETCH_WAIT_REQ
       @do_job_once @do_job
-    setTimeout next, FETCH_GAP
+    setTimeout next, @fetch_gap
 
   prepare_from_seed: ->
     @add_job_seed url for url in @seeds
+
+  system_busy: (busy) ->
+    @_system_busy = busy || true
+    @fetch_gap = if @_system_busy then FETCH_BUSY_GAP else FETCH_IDLE_GAP
 
   start: ->
     @working = true
