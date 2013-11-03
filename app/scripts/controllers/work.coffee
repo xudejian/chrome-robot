@@ -1,41 +1,29 @@
 'use strict'
 
 angular.module('chromeRobotApp')
-  .controller 'WorkCtrl', ($scope, $rootScope, Site) ->
-    $rootScope.title = 'Chrome Robot Work'
+  .controller 'WorkCtrl', ($scope) ->
 
     $scope.jobs = {}
-    Site.site 'cnbeta', (site) ->
-      $scope.site = site
 
-    $scope.btn = btn =
-      stop:'Stop'
-      pause:'Pause'
-      start: 'Start'
+    $scope.status = 'running'
 
-    $scope.start = ->
+    $scope.restart = ->
       msg =
-        cmd: 'start'
-        site: $scope.site
+        cmd: 'restart'
       chrome.runtime.sendMessage msg
-
-    $scope.stop = ->
-      if btn.stop == "Stop"
-        btn.stop = "Stopping"
-      msg =
-        cmd: 'stop'
-        site: $scope.site
-      chrome.runtime.sendMessage msg
+      $scope.status = 'running'
 
     $scope.pause = ->
-      if btn.pause == "Pause"
-        btn.pause = "Resume"
-      else
-        btn.pause = "Pause"
+      msg =
+        cmd: 'stop_all'
+      chrome.runtime.sendMessage msg
+    $scope.resume = ->
+      msg =
+        cmd: 'resume_all'
+      chrome.runtime.sendMessage msg
 
     message_handle = (request, sender, sendResponse) ->
       return unless request.op
-      console.log request
       job = request.job
       $scope.$apply ->
         if 20 < _.size $scope.jobs
