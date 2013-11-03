@@ -2,7 +2,7 @@ doctype 5
 html(ng-app="chromeRobotApp", ng-csp="")
   head
     meta(charset="utf-8")
-    title {{title}}
+    title Chrome Robot
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     // build:css({.tmp,app}) styles/app.css
     link(href="styles/main.css", rel="stylesheet")
@@ -21,9 +21,9 @@ html(ng-app="chromeRobotApp", ng-csp="")
                 |  Home
             li.divider-vertical
             li
-              a(href="#/options")
-                i.icon-wrench
-                |  Options
+              a(ui-sref="sites.list")
+                i.icon-th-large
+                |  Sites
             li.divider-vertical
             li
               a(href="#/works")
@@ -31,9 +31,9 @@ html(ng-app="chromeRobotApp", ng-csp="")
                 |  Works
             li.divider-vertical
             li
-              a(ui-sref="sites.list")
-                i.icon-th-large
-                |  Sites
+              a(href="#/options")
+                i.icon-wrench
+                |  Options
             li.divider-vertical
             li
               a(href,ng-click="show_test('test.html')")
