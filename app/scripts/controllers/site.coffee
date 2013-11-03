@@ -78,6 +78,7 @@ angular.module('chromeRobotApp')
 
     $scope.site =
       name: 'cnbeta'
+      stop: true
       seed: ['http://www.cnbeta.com/']
       list_regexp: []
       info_regexp: []

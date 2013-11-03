@@ -11,6 +11,12 @@ angular.module('chromeRobotApp')
     stop: (site) ->
       site.stop = not site.stop
       config.site_save site
+
+      msg =
+        cmd: if site.stop then 'stop' else 'start'
+        site: site
+      chrome.runtime.sendMessage msg
+
     destory: (name, cb) ->
       config.site_destory name, cb
     get_logo: (site, cb) ->
