@@ -7,17 +7,31 @@ class Robot extends EventEmitter
   FETCH_WAIT_REQ = 3 * 1000
 
   constructor: (@name, options) ->
+    unless @name or @name.length
+      throw msg: 'robot should have a name'
     @working = false
     @nproc = 1
-    @done = {}
 
-    @todo = {}
     @list_todo = []
     @info_todo = []
 
     @reset_options()
     @options options
     @system_busy false
+
+    @data = {}
+    @_data = {}
+    chrome.storage.local.get @name, (data) =>
+      @_data = data
+      data[@name] ?= @data
+      @data = data[@name]
+      @data.todo ?= {}
+      @data.done ?= {}
+      chrome.storage.local.set data
+
+      @restore_job @data.todo
+      @prepare_from_seed()
+      @emit 'ready'
 
   reset_options: ->
     @seeds = []
@@ -29,7 +43,6 @@ class Robot extends EventEmitter
     @add_info_re (options.info_regexp || [])
     @add_list_re (options.list_regexp || [])
     @working = if options.stop then false else true
-    @prepare_from_seed()
 
   merge_array = (arr, items) ->
     items = [items] unless Array.isArray items
@@ -92,14 +105,24 @@ class Robot extends EventEmitter
       referrer: url
       status: 'seed'
 
-  in_done: (url) -> @done.hasOwnProperty url.toLowerCase()
+  in_done: (url) ->
+    url = url.toLowerCase()
+    @data.done.hasOwnProperty url
+
   fetched: (url) ->
     url = url.toLowerCase()
-    @done[url] = true
-    delete @todo[url] if @todo[url]
+    @data.done[url] = 1
+    delete @data.todo[url]
+    chrome.storage.local.set data, ->
 
-  in_todo: (url) -> @todo.hasOwnProperty url.toLowerCase()
-  add_todo: (url) -> @todo[url.toLowerCase()] = true
+  in_todo: (url) ->
+    url = url.toLowerCase()
+    @data.todo.hasOwnProperty url
+
+  add_todo: (url) ->
+    url = url.toLowerCase()
+    @data.todo[url] = 1
+    chrome.storage.local.set @_data, ->
 
   add_info_job: (job) ->
     @add_todo job.url
@@ -116,6 +139,18 @@ class Robot extends EventEmitter
       @add_info_job job
     else if @is_list job.url
       @add_list_job job
+
+  restore_job: (todos) ->
+    urls = Object.keys todos
+    for url in urls
+      job =
+        url: url
+        get_url_count: 0
+        status: 'pending'
+      if @is_info url
+        @add_info_job job
+      else if @is_list url
+        @add_list_job job
 
   job_fetch_done: (job, data, status) ->
     job.status = status
