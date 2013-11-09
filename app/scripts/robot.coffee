@@ -213,6 +213,12 @@ class Robot extends EventEmitter
     @working = false
     @emit 'stop'
 
+  clean: ->
+    @ready =>
+      @data.done = {}
+      chrome.storage.local.set @_data
+      @emit 'clean'
+
   get_web: (url, config={}) ->
     config.timeout ?= HTTP_REQUEST_TIMEOUT
     config.success ?= ->

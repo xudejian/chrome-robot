@@ -48,6 +48,12 @@ remove = (request) ->
   robots[name].stop()
   delete robots[name]
 
+clean = (request) ->
+  site = request.site || {}
+  name = site.name || ''
+  return unless robots[name]
+  robots[name].clean()
+
 reload = (request) ->
   site = request.site || {}
   name = site.name || ''
@@ -79,6 +85,7 @@ noop = ->
 robot_cmds =
   start: start
   stop: stop
+  clean: clean
   remove: remove
   reload: reload
   restart: restart
