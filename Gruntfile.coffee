@@ -30,6 +30,7 @@ module.exports = (grunt) ->
     yeoman: yeomanConfig
     watch:
       options:
+        atBegin: true
         livereload: LIVERELOAD_PORT
         spawn: true
       jade:
