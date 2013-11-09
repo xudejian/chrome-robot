@@ -9,6 +9,7 @@ class Robot extends EventEmitter
   constructor: (@name, options) ->
     unless @name or @name.length
       throw msg: 'robot should have a name'
+    @_ready = false
     @working = false
     @nproc = 1
 
@@ -31,6 +32,7 @@ class Robot extends EventEmitter
 
       @restore_job @data.todo
       @prepare_from_seed()
+      @_ready = true
       @emit 'ready'
 
   reset_options: ->
@@ -113,7 +115,7 @@ class Robot extends EventEmitter
     url = url.toLowerCase()
     @data.done[url] = 1
     delete @data.todo[url]
-    chrome.storage.local.set data, ->
+    chrome.storage.local.set @_data, ->
 
   in_todo: (url) ->
     url = url.toLowerCase()
@@ -189,14 +191,21 @@ class Robot extends EventEmitter
     setTimeout next, @fetch_gap
 
   prepare_from_seed: ->
-    @add_job_seed url for url in @seeds
+    @ready =>
+      @add_job_seed url for url in @seeds
 
   system_busy: (busy) ->
     @_system_busy = not not busy
     @fetch_gap = if busy then FETCH_BUSY_GAP else FETCH_IDLE_GAP
 
+  ready: (cb) ->
+    if @_ready
+      cb()
+    else
+      @once 'ready', cb
   start: ->
     @working = true
+    @prepare_from_seed()
     @do_job()
     @emit 'start'
 
