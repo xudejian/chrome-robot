@@ -75,3 +75,19 @@ describe 'utils', () ->
                 assert.strictEqual fm, cas[2], re
           return
     return
+
+  describe 'javascript run order', ->
+    it 'should trigger ready after on', (done) ->
+      class Demo extends EventEmitter
+        constructor: ->
+          @trigger 'before_ready'
+          setTimeout (=> @trigger 'ready'), 0
+          @trigger 'after_ready'
+      demo = new Demo()
+
+      demo.on 'before_ready', =>
+        done 'before_ready should not here'
+      demo.on 'after_ready', =>
+        done 'after_ready should not here'
+      demo.on 'ready', =>
+        done()
