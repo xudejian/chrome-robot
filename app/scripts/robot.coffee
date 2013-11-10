@@ -155,7 +155,6 @@ class Robot extends EventEmitter
         @add_list_job job
 
   job_fetch_done: (job, data, status) ->
-    job.status = status
     @fetched job.url
     @parse_fetched_content job, data
 
@@ -173,18 +172,19 @@ class Robot extends EventEmitter
   do_job_once: (next) ->
     job = @info_todo.shift() || @list_todo.shift()
     return next.call @ unless job
-    job.status = 'fetching'
+    job.status = 100
     config =
       success: (status, data, headers) =>
+        job.status = status
         @job_fetch_done job, data, status
         next.call @
       error: (status) =>
+        job.status = status
         if status is 408
           job.retry ?= 2
           job.retry -= 1
           if job.retry > 0
             return @get_web job.url, config
-          job.status = 'timeout'
           @emit 'timeout', job
         next.call @
     @get_web job.url, config
