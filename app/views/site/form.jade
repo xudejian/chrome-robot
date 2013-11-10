@@ -51,10 +51,14 @@ form.form-horizontal(ng-submit="save(site)", ng-controller="SiteFormCtrl")
   .control-group
     label.control-label info parse:
     .controls
-      label Info page parse code, function (content, document, window) {...}
+      label.
+        just paste your parse function code here, and
+        return your results object
+      code exports.parse = function (content, document, window) {
       .row
         .span6
           textarea(ui-codemirror="editorOptions", ng-model="site.info_parse")
+      code };
   .form-actions
     button.btn.btn-primary(type='submit') Save
     button.btn(type='button', ng-click='cancel()') Cancel

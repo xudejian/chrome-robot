@@ -88,10 +88,9 @@ angular.module('chromeRobotApp')
       list_regexp: []
       info_regexp: []
       info_parse: '''
-        ;(function(export){
-          export.parse = function (content, document, window) {
-          };
-        })(this);
+        return {
+          title: document.title
+        };
         '''
 
 angular.module('chromeRobotApp')
