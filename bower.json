@@ -12,7 +12,8 @@
     "lodash": "~2.2.1",
     "underscore.string": "~2.3.3",
     "eventEmitter": "~4.2.5",
-    "bloomfilter.js": "jasondavies/bloomfilter.js#~0.0.13"
+    "bloomfilter.js": "jasondavies/bloomfilter.js#~0.0.13",
+    "angular-ui-codemirror": "~0.0.5"
   },
   "devDependencies": {
     "fixtures": "~1.3.1",

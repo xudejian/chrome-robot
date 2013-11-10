@@ -72,6 +72,11 @@ angular.module('chromeRobotApp')
     $scope.cancel = ->
       $state.go '^.list'
 
+    $scope.editorOptions =
+      lineWrapping : true
+      lineNumbers: true
+      mode: 'javascript'
+
 angular.module('chromeRobotApp')
   .controller 'SiteNewCtrl', ($scope) ->
 

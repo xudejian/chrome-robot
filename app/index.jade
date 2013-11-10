@@ -8,6 +8,7 @@ html(ng-app="chromeRobotApp", ng-csp="")
     link(href="bower_components/angular/angular-csp.css", rel="stylesheet")
     link(href="styles/main.css", rel="stylesheet")
     link(href="styles/work.css", rel="stylesheet")
+    link(href="bower_components/codemirror/lib/codemirror.css", rel="stylesheet")
     // endbuild
   body
     header.header.navbar.navbar-fixed-top(ng-controller='HeaderCtrl')
@@ -56,6 +57,10 @@ html(ng-app="chromeRobotApp", ng-csp="")
     script(src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js")
     script(src="bower_components/eventEmitter/EventEmitter.js")
     script(src="scripts/html-domparser.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/ui-codemirror.js
+    script(src="bower_components/codemirror/lib/codemirror.js")
+    script(src="bower_components/angular-ui-codemirror/ui-codemirror.js")
     // endbuild
     // build:js({.tmp,app}) scripts/utils.js
     script(src="scripts/utils.js")
