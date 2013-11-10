@@ -16,8 +16,10 @@ html
     script(src="bower_components/chai/chai.js")
     script(src="bower_components/sinon-chai/lib/sinon-chai.js")
     script(src="bower_components/sinonjs/sinon.js")
-    script(src="test/config.js")
     // endbuild
+    script.
+      mocha.setup('bdd');
+      expect = chai.expect;
 
     // build:js({.tmp,app}) scripts/modules.js
     script(src="bower_components/lodash/dist/lodash.js")
@@ -32,6 +34,13 @@ html
     // build:js({.tmp,app}) scripts/angular-mocks.js
     script(src="bower_components/angular-mocks/angular-mocks.js")
     // endbuild
+    // build:js({.tmp,app}) scripts/ui-codemirror.js
+    script(src="bower_components/codemirror/lib/codemirror.js")
+    script(src="bower_components/codemirror/mode/javascript/javascript.js")
+    script(src="bower_components/angular-ui-codemirror/ui-codemirror.js")
+    // endbuild
+
+    script(src="test/mock.js")
 
     script(src="scripts/utils.js")
     script(src="scripts/robot.js")
@@ -44,7 +53,7 @@ html
     script(src="scripts/services.js")
     script(src="scripts/controllers.js")
 
-    script(src="test/mock.js")
     script(src="test/spec.js")
 
-    script(src="test/run.js")
+    script.
+      mocha.run()

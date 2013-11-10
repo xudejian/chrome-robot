@@ -23,7 +23,10 @@
       }
     },
     "sandbox": {
-      "pages": ["sandbox.html"]
+      "pages": [
+        "sandbox.html"
+        , "test.html"
+      ]
     },
     "offline_enabled": true,
     "permissions": [
