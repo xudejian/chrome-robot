@@ -8,6 +8,11 @@ angular.module('chromeRobotApp')
       config.sites cb
     site: (name, cb) ->
       config.site name, cb
+    clean: (site) ->
+      msg =
+        cmd: 'clean'
+        site: site
+      chrome.runtime.sendMessage msg
     stop: (site) ->
       site.stop = not site.stop
       config.site_save site

@@ -4,6 +4,9 @@ include form
 
 .form-actions
   h3 Danger ops
-  button.btn.btn-warning(type='button', ng-click='stop(site)', ng-show="!site.stop") Pause
-  button.btn.btn-info(type='button', ng-click='stop(site)', ng-show="!!site.stop") Resume
+  button.btn.btn-info(type='button', ng-click='stop(site)', ng-hide="site.stop") Pause
+  button.btn.btn-info(type='button', ng-click='stop(site)', ng-show="site.stop") Resume
+
+  button.btn.btn-warning(type='button', ng-click='clean(site)') Clean
+
   button.btn.btn-danger(type='button', ng-click='destory(site)') Delete

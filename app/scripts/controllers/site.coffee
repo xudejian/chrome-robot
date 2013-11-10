@@ -14,8 +14,7 @@ angular.module('chromeRobotApp')
     $scope.detail = (site) ->
       $state.go '^.detail', site: site.name
 
-    $scope.stop = (site, $event) ->
-      $event.stopPropagation()
+    $scope.stop = (site) ->
       Site.stop site
 
 angular.module('chromeRobotApp')
@@ -92,6 +91,9 @@ angular.module('chromeRobotApp')
     $scope.stop = (site) ->
       Site.stop site
       $state.go '^.list'
+
+    $scope.clean = (site) ->
+      Site.clean site
 
     $scope.destory = (site) ->
       Site.destory site.name

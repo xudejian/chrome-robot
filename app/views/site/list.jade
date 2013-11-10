@@ -16,9 +16,9 @@ table.table.table-striped.table-hover
       th Status
       th Op
   tbody
-    tr(ng-repeat="site in sites", ng-click="detail(site)")
+    tr(ng-repeat="site in sites")
       td {{$index + 1}}
-      td
+      td(ng-click="detail(site)")
         img(ng-show="site.ico", ng-src="{{site.ico}}", alt="{{site.name}}")
         | {{site.name}}
       td {{site.seed.join(',')}}
@@ -26,7 +26,8 @@ table.table.table-striped.table-hover
         span(ng-switch-when="true") Pause
         span(ng-switch-default) Running
       td
-        button.btn.btn-warning(type='button', ng-click='stop(site,$event)',
-        ng-show="!site.stop") Pause
-        button.btn.btn-info(type='button', ng-click='stop(site,$event)',
-        ng-show="!!site.stop") Resume
+        button.btn.btn-warning(type='button', ng-click='stop(site)',
+        ng-hide="site.stop") Pause
+        button.btn.btn-info(type='button', ng-click='stop(site)',
+        ng-show="site.stop") Resume
+        button.btn(type='button', ng-click='detail(site)') Detail

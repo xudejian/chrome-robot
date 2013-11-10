@@ -18,6 +18,16 @@ bind_message = (robot) ->
       job: job
       type: 'info'
     chrome.runtime.sendMessage msg
+  robot.on 'request', (job) ->
+    msg =
+      op: 'request'
+      job: job
+    chrome.runtime.sendMessage msg
+  robot.on 'timeout', (job) ->
+    msg =
+      op: 'timeout'
+      job: job
+    chrome.runtime.sendMessage msg
 
 robots = {}
 
