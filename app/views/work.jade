@@ -11,13 +11,13 @@ button.btn(type='button', ng-click='restart()') Restart
 table.table.table-hover
   thead
     tr
-      th Requested URL
-      th Returned URL
-      th Referrer
+      th Requested
       th Status
+      th Referrer
   tbody
-    tr(ng-repeat="(url,req) in jobs")
-      td {{req.url|limitTo:255}}
-      td {{req.get_url_count}}
-      td {{req.referrer|limitTo:255}}
+    tr(ng-repeat="(url,req) in jobs", ng-class='job_class(req)')
+      td
+        span {{req.url|limitTo:80}}
+        span.badge.badge-success(ng-show='req.status==200') find {{req.url_count}}
       td {{req.status}}
+      td {{req.referrer|limitTo:60}}
