@@ -39,12 +39,14 @@ class Robot extends EventEmitter
     @seeds = []
     @list_re = []
     @info_re = []
+    @emit 'option', @name, {}
 
   options: (options={}) ->
     @seed (options.seed || [])
     @add_info_re (options.info_regexp || [])
     @add_list_re (options.list_regexp || [])
     @working = if options.stop then false else true
+    @emit 'option', @name, options
 
   merge_array = (arr, items) ->
     items = [items] unless Array.isArray items
@@ -166,6 +168,7 @@ class Robot extends EventEmitter
     job.content = data
     job.links = links
 
+    job.name = @name
     @emit 'response', job
     @add_job_url link, job.url for link in links
 

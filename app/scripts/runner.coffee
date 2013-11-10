@@ -1,11 +1,35 @@
 'use strict'
 
+sandbox_remove = (name) ->
+  message =
+    command: 'remove'
+    name: name
+  sandbox_window.postMessage message, '*'
+
+sandbox_option = (name, option) ->
+  message =
+    command: 'option'
+    site:
+      name: name
+      info_parse: option?.info_parse
+  console.log 'call option event', message
+  sandbox_window.postMessage message, '*'
+
+sandbox_parse = (job) ->
+  message =
+    command: 'response'
+    job: job
+  sandbox_window.postMessage message, '*'
+
 bind_message = (robot) ->
   robot.on 'response', (job) ->
+    sandbox_parse job
     msg =
       op: 'fetched'
       job: job
     chrome.runtime.sendMessage msg
+  robot.on 'option', (name, option) ->
+    sandbox_option name, option
   robot.on 'todo.list', (job) ->
     msg =
       op: 'todo'
@@ -35,7 +59,6 @@ start = (request) ->
   site = request.site || {}
   name = site.name || ''
   return unless name and name.length
-  console.log request
   unless robots[name]
     robots[name] = robot = new Robot name
     bind_message robot
@@ -57,6 +80,7 @@ remove = (request) ->
   return unless robots[name]
   robots[name].stop()
   delete robots[name]
+  sandbox_remove name
 
 clean = (request) ->
   site = request.site || {}
@@ -130,3 +154,25 @@ idle_bind = (state) ->
 
 chrome.idle.onStateChanged.addListener idle_bind
 chrome.runtime.onSuspend.addListener ->
+
+parse_response = (data) ->
+  console.log data
+  return unless data.success
+  msg =
+    op: 'parsed'
+    job: data.job
+  chrome.runtime.sendMessage msg
+
+option_rv = (data) ->
+  console.log data
+
+sandbox_response_cmds =
+  response: parse_response
+  option: option_rv
+
+sandbox_message_handle = (event) ->
+  cmd = event.data.command || ''
+  op = sandbox_response_cmds[cmd] || noop
+  op event.data
+
+window.addEventListener 'message', sandbox_message_handle

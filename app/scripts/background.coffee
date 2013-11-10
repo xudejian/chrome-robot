@@ -33,11 +33,13 @@ chrome.runtime.onSuspend.addListener ->
   # Do some simple clean-up tasks.
 
 check_sandbox = ->
-  iframe = document.getElementsByTagName 'iframe'
-  return if iframe.length
-  iframe = document.createElement 'iframe'
-  iframe.style.display = 'none'
-  iframe.src = 'sandbox.html'
-  document.body.appendChild iframe
+  sandbox = document.getElementById 'sandbox'
+  return if sandbox
+  sandbox = document.createElement 'iframe'
+  sandbox.style.display = 'none'
+  sandbox.src = 'sandbox.html'
+  sandbox.id = 'sandbox'
+  document.body.appendChild sandbox
+  window.sandbox_window = sandbox.contentWindow
 
 check_sandbox()
