@@ -73,8 +73,9 @@ angular.module('chromeRobotApp')
       $state.go '^.list'
 
     $scope.editorOptions =
-      lineWrapping : true
+      lineWrapping: true
       lineNumbers: true
+      theme: 'solarized'
       mode: 'javascript'
 
 angular.module('chromeRobotApp')
@@ -86,6 +87,12 @@ angular.module('chromeRobotApp')
       seed: ['http://www.cnbeta.com/']
       list_regexp: []
       info_regexp: []
+      info_parse: '''
+        ;(function(export){
+          export.parse = function (content, document, window) {
+          };
+        })(this);
+        '''
 
 angular.module('chromeRobotApp')
   .controller 'SiteDetailCtrl', ($scope, $state, $stateParams, Site) ->
