@@ -97,7 +97,7 @@ class Robot extends EventEmitter
       url: url
       get_url_count: 0
       referrer: referrer
-      status: 'pending'
+      status: 'queue'
 
   add_job_seed: (url) ->
     return if @already_todo url
@@ -148,7 +148,7 @@ class Robot extends EventEmitter
       job =
         url: url
         get_url_count: 0
-        status: 'pending'
+        status: 'restore'
       if @is_info url
         @add_info_job job
       else if @is_list url
@@ -179,8 +179,16 @@ class Robot extends EventEmitter
         @job_fetch_done job, data, status
         next.call @
       error: (status) =>
+        if status is 408
+          job.retry ?= 2
+          job.retry -= 1
+          if job.retry > 0
+            return @get_web job.url, config
+          job.status = 'timeout'
+          @emit 'timeout', job
         next.call @
     @get_web job.url, config
+    @emit 'request', job
 
   do_job: ->
     next = =>
@@ -226,12 +234,20 @@ class Robot extends EventEmitter
 
     xhr = new XMLHttpRequest()
     xhr.onreadystatechange = ->
-      return unless xhr.readyState == 4
+      if xhr.readyState is 3
+        ct = xhr.getResponseHeader("content-type") || "text/html"
+        if -1 is ct.indexOf 'text/'
+          xhr.abort()
+          xhr = null
+          config.error 415
+      return unless xhr.readyState is 4
       clearTimeout tid
       responseHeaders = xhr.getAllResponseHeaders()
       response = if xhr.responseType then xhr.response else xhr.responseText
       config.success xhr.status, response, responseHeaders
       xhr = null
+    xhr.setRequestHeader "Accept", "text/*"
+    xhr.timeout = config.timeout
     xhr.open 'GET', url, true
     xhr.send()
 
@@ -239,8 +255,8 @@ class Robot extends EventEmitter
       return unless xhr
       xhr.abort()
       xhr = null
-      config.error 522
+      config.error 504
 
-    tid = setTimeout timeout_handle, config.timeout
+    tid = setTimeout timeout_handle, config.timeout + 10
 
 @Robot = Robot
