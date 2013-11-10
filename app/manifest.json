@@ -22,6 +22,9 @@
         ]
       }
     },
+    "sandbox": {
+      "pages": ["sandbox.html"]
+    },
     "offline_enabled": true,
     "permissions": [
       "http://*/"
