@@ -17,7 +17,7 @@ table.table.table-hover
       th Status
   tbody
     tr(ng-repeat="(url,req) in jobs")
-      td {{req.url}}
+      td {{req.url|limitTo:255}}
       td {{req.get_url_count}}
-      td {{req.referrer}}
+      td {{req.referrer|limitTo:255}}
       td {{req.status}}
