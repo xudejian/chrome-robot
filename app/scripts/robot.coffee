@@ -246,9 +246,9 @@ class Robot extends EventEmitter
       response = if xhr.responseType then xhr.response else xhr.responseText
       config.success xhr.status, response, responseHeaders
       xhr = null
-    xhr.setRequestHeader "Accept", "text/*"
-    xhr.timeout = config.timeout
     xhr.open 'GET', url, true
+    xhr.timeout = config.timeout
+    xhr.setRequestHeader "Accept", "text/*"
     xhr.send()
 
     timeout_handle = ->
