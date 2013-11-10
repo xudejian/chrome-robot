@@ -95,7 +95,7 @@ class Robot extends EventEmitter
     return if @already_todo url
     @add_job
       url: url
-      get_url_count: 0
+      url_count: 0
       referrer: referrer
       status: 'queue'
 
@@ -103,7 +103,7 @@ class Robot extends EventEmitter
     return if @already_todo url
     @add_list_job
       url: url
-      get_url_count: 0
+      url_count: 0
       referrer: url
       status: 'seed'
 
@@ -147,7 +147,7 @@ class Robot extends EventEmitter
     for url in urls
       job =
         url: url
-        get_url_count: 0
+        url_count: 0
         status: 'restore'
       if @is_info url
         @add_info_job job
@@ -162,7 +162,7 @@ class Robot extends EventEmitter
     canfollow = (link) -> link.rel.toLowerCase() isnt 'nofollow'
     doc = utils.world data, job.url
     links = (link.href for link in doc.links when canfollow link)
-    job.get_url_count = links.length
+    job.url_count = links.length
     job.content = data
     job.links = links
 
