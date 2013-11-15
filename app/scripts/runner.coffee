@@ -20,7 +20,6 @@ sandbox_response_cmds =
 
 sandbox_message_handle = (event) ->
   cmd = event.data.command || ''
-  console.log cmd, event.data
   (sandbox_response_cmds[cmd] || noop) event.data
 
 window.addEventListener 'message', sandbox_message_handle
