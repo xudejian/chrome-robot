@@ -32,7 +32,7 @@ module.exports = (grunt) ->
       options:
         atBegin: true
         livereload: LIVERELOAD_PORT
-        spawn: true
+        spawn: false
       jade:
         files: ['<%= yeoman.app %>/{,views/**/}*.jade']
         tasks: ['jade:dist']
@@ -48,6 +48,12 @@ module.exports = (grunt) ->
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
+      static:
+        files: [
+          '<%= yeoman.cmp %>/scripts/EventEmitter.js'
+          '<%= yeoman.cmp %>/scripts/bloomfilter.js'
+        ]
+        tasks: ['copy:dev']
       # watch end
 
     connect:
@@ -307,6 +313,14 @@ module.exports = (grunt) ->
             '<%= yeoman.app %>/bower_components/eventEmitter/EventEmitter.min.js'
         ,
           '<%= yeoman.dist %>/scripts/bloomfilter.js':
+            '<%= yeoman.app %>/bower_components/bloomfilter.js/bloomfilter.js'
+        ]
+      dev:
+        files: [
+          '<%= yeoman.cmp %>/scripts/EventEmitter.js':
+            '<%= yeoman.app %>/bower_components/eventEmitter/EventEmitter.js'
+        ,
+          '<%= yeoman.cmp %>/scripts/bloomfilter.js':
             '<%= yeoman.app %>/bower_components/bloomfilter.js/bloomfilter.js'
         ]
 
