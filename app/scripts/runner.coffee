@@ -1,35 +1,84 @@
 'use strict'
 
-sandbox_remove = (name) ->
-  message =
-    command: 'remove'
-    name: name
-  sandbox_window.postMessage message, '*'
+noop = ->
 
-sandbox_option = (name, option) ->
-  message =
-    command: 'option'
-    site:
+parse_rv = (data) ->
+  return unless data.success
+  msg =
+    op: 'parsed'
+    job: data.job
+  chrome.runtime.sendMessage msg
+
+console_rv = (data) ->
+  console.log data
+
+sandbox_response_cmds =
+  parse: parse_rv
+  set_parse: console_rv
+  list: console_rv
+  ready: console_rv
+
+sandbox_message_handle = (event) ->
+  cmd = event.data.command || ''
+  console.log cmd, event.data
+  (sandbox_response_cmds[cmd] || noop) event.data
+
+window.addEventListener 'message', sandbox_message_handle
+
+class Sandbox extends EventEmitter
+  constructor: ->
+    @_ready = false
+    sandbox = document.createElement 'iframe'
+    sandbox.src = 'sandbox.html'
+    sandbox.id = 'sandbox'
+    document.body.appendChild sandbox
+    @window = sandbox.contentWindow
+    @window.addEventListener 'load', ( =>
+      @_ready = true
+      @emit 'ready'
+    ), false
+
+  ready: (cb) ->
+    return cb() if @_ready
+    @once 'ready', cb
+
+  check_ready: ->
+    message =
+      command: 'ready'
+    @send message
+
+  send: (msg) ->
+    @window.postMessage msg, '*'
+
+  command: (cmd, msg={}) ->
+    msg.command = cmd
+    @send msg
+
+  remove: (name) ->
+    @command 'remove', name: name
+
+  set_parse: (name, option) ->
+    @command 'set_parse', site:
       name: name
       info_parse: option?.info_parse
-  console.log 'call option event', message
-  sandbox_window.postMessage message, '*'
 
-sandbox_parse = (job) ->
-  message =
-    command: 'response'
-    job: job
-  sandbox_window.postMessage message, '*'
+  parse: (job) ->
+    @command 'parse', job: job
+
+  list: ->
+    @command 'list'
+
+sandbox = new Sandbox()
 
 bind_message = (robot) ->
   robot.on 'response', (job) ->
-    sandbox_parse job
+    sandbox.parse job
     msg =
       op: 'fetched'
       job: job
     chrome.runtime.sendMessage msg
   robot.on 'option', (name, option) ->
-    sandbox_option name, option
+    sandbox.set_parse name, option
   robot.on 'todo.list', (job) ->
     msg =
       op: 'todo'
@@ -80,7 +129,7 @@ remove = (request) ->
   return unless robots[name]
   robots[name].stop()
   delete robots[name]
-  sandbox_remove name
+  sandbox.remove name
 
 clean = (request) ->
   site = request.site || {}
@@ -100,21 +149,21 @@ reload = (request) ->
   robot.options site
   robot.start() unless site.stop
 
-stop_all = ->
+stop_all = (request, sender, sendResponse, done=noop) ->
   for site, robot of robots
     robot.stop()
-resume_all = ->
+  done()
+resume_all = (request, sender, sendResponse, done=noop) ->
   for site, robot of robots when not site.stop
     robot.start()
+  done()
 
-restart = ->
+restart = (request, sender, sendResponse, done=noop) ->
   stop_all()
   chrome.storage.sync.get 'sites', (data) ->
-    return unless data.sites
     for name, site of data.sites when not site.stop
       reload site: site
-
-noop = ->
+    done()
 
 robot_cmds =
   start: start
@@ -131,10 +180,6 @@ message_handle = (request, sender, sendResponse) ->
   op = robot_cmds[cmd] || noop
   op request, sender, sendResponse
 chrome.runtime.onMessage.addListener message_handle
-
-unless first_run
-  first_run = true
-  restart()
 
 on_idle = ->
   for site, robot of robots
@@ -155,24 +200,6 @@ idle_bind = (state) ->
 chrome.idle.onStateChanged.addListener idle_bind
 chrome.runtime.onSuspend.addListener ->
 
-parse_response = (data) ->
-  console.log data
-  return unless data.success
-  msg =
-    op: 'parsed'
-    job: data.job
-  chrome.runtime.sendMessage msg
-
-option_rv = (data) ->
-  console.log data
-
-sandbox_response_cmds =
-  response: parse_response
-  option: option_rv
-
-sandbox_message_handle = (event) ->
-  cmd = event.data.command || ''
-  op = sandbox_response_cmds[cmd] || noop
-  op event.data
-
-window.addEventListener 'message', sandbox_message_handle
+sandbox.ready ->
+  restart ->
+    sandbox.list()
