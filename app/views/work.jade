@@ -16,7 +16,7 @@ table.table.table-hover
   tbody
     tr(ng-repeat="(url,req) in jobs", ng-class='job_class(req)')
       td
-        span {{req.url|limitTo:80}}
+        a(ng-href='{{req.url}}', target='_blank') {{req.url|limitTo:80}}
         span.badge.badge-success(ng-show='req.status==200') find {{req.url_count}}
         span.label.label-info {{req.status}}
       td
