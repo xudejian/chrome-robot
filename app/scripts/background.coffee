@@ -24,22 +24,8 @@ show_app_window = ->
 
 chrome.app.runtime.onLaunched.addListener show_app_window
 chrome.app.runtime.onRestarted.addListener ->
-  check_sandbox()
   chrome.storage.local.get 'windowVisible', (data) ->
     if data.windowVisible
       show_app_window()
 
 chrome.runtime.onSuspend.addListener ->
-  # Do some simple clean-up tasks.
-
-check_sandbox = ->
-  sandbox = document.getElementById 'sandbox'
-  return if sandbox
-  sandbox = document.createElement 'iframe'
-  sandbox.style.display = 'none'
-  sandbox.src = 'sandbox.html'
-  sandbox.id = 'sandbox'
-  document.body.appendChild sandbox
-  window.sandbox_window = sandbox.contentWindow
-
-check_sandbox()
