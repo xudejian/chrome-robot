@@ -71,7 +71,7 @@ sandbox = new Sandbox()
 
 bind_message = (robot) ->
   robot.on 'response', (job) ->
-    sandbox.parse job
+    sandbox.parse job if job.info
     msg =
       op: 'fetched'
       job: job

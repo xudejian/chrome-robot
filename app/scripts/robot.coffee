@@ -129,11 +129,13 @@ class Robot extends EventEmitter
     chrome.storage.local.set @_data, ->
 
   add_info_job: (job) ->
+    job.info = true
     @add_todo job.url
     @info_todo.push job
     @emit 'todo.info', job
 
   add_list_job: (job) ->
+    job.list = true
     @add_todo job.url
     @list_todo.push job
     @emit 'todo.list', job
