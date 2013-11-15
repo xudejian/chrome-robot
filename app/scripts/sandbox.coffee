@@ -12,7 +12,7 @@ eval_script = (id, code, cb) ->
   script.innerHTML = code
   document.body.appendChild script
 
-option = (data, cb) ->
+set_parse_fn = (data, cb) ->
   name = data.site.name
   info_parse = data.site.info_parse || 'return {content:content}'
   context = {}
@@ -24,17 +24,17 @@ option = (data, cb) ->
   (new Function 'exports', code) context
   parsers[name] = context.parse
   data.success = true
-  data.parse = parsers[name].toString()
-  data.parsers = parsers
+  data.name = name
+  data.parse = context.parse.toString()
   cb data
 
-remove = (data, cb) ->
+remove_fn = (data, cb) ->
   name = data.name
   delete parsers[name]
   data.success = true
   cb data
 
-run_parser = (data, cb) ->
+parse_fn = (data, cb) ->
   job = data.job
   name = job.name
   unless parsers[name]
@@ -44,12 +44,23 @@ run_parser = (data, cb) ->
     return cb data
   doc = utils.world job.content, job.url
   job.res = parsers[name] job.content, doc, {}
+  data.success = true
   cb data
 
+list_fn = (data, cb) ->
+  list = {}
+  list[name] = fn.toString() for name, fn of parsers
+  cb list
+
+ready_fn = (data, cb) -> cb data
+
 cmds =
-  response: run_parser
-  remove: remove
-  option: option
+  parse: parse_fn
+  remove: remove_fn
+  set_parse: set_parse_fn
+  list: list_fn
+  ready: ready_fn
+
 message_handle = (event) ->
   cmd = event.data.command || ''
   op = cmds[cmd] || noop
