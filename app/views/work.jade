@@ -21,4 +21,4 @@ table.table.table-hover
         span.label.label-info {{req.status}}
       td
         span(ng-hide='req.res') {{req.referrer|limitTo:60}}
-        span(ng-show='req.res') {{req.res}}
+        span(ng-show='req.res') {{req.res|json}}

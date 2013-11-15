@@ -5,8 +5,6 @@ angular.module('chromeRobotApp')
 
     $scope.jobs = {}
 
-    $scope.status = 'running'
-
     $scope.restart = ->
       msg =
         cmd: 'restart'
@@ -34,15 +32,9 @@ angular.module('chromeRobotApp')
     message_handle = (request, sender, sendResponse) ->
       return unless request.op
       job = request.job
-      console.log job if request.op is 'parsed'
       $scope.$apply ->
-        num = _.size($scope.jobs) - 20
-        for url, p_job of $scope.jobs when num > 0 and _.isNumber job.status
-          delete $scope.jobs[url]
-          num -= 1
-        for url, p_job of $scope.jobs when num > 0
-          delete $scope.jobs[url]
-          num -= 1
+        if _.size($scope.jobs) > 20
+          $scope.jobs = {}
         $scope.jobs[job.url] = job
 
     chrome.runtime.onMessage.addListener message_handle
