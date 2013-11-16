@@ -11,6 +11,3 @@ chrome =
 
 window.chrome = window.chrome || chrome
 window.chrome.storage = window.chrome.storage || chrome.storage
-
-angular.module('mockedChrome', [])
-  .value 'chrome', chrome
