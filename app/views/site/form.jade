@@ -63,7 +63,27 @@ form.form-horizontal(ng-submit="save(site)", ng-controller="SiteFormCtrl")
     label.control-label info save:
     .controls
       label.
-        post the parsed info to
+        post the parsed info (json) to your server, you can receive like this
+      details
+        summary Nodejs express Example
+        pre.
+          var app, express;
+          express = require('express');
+          app = express();
+          app.use(express.bodyParser());
+          app.post('/', function(req, res) {
+            console.log(req.body);
+            return res.send(201);
+          });
+          app.listen(3000);
+          console.log('ready');
+      details
+        summary PHP Example
+        pre.
+          $data = file_get_contents("php://input");
+          $json = json_decode($data);
+          # ...
+
       input.span5(ng-model="site.save_url", type="url",
       placeholder="save url")
   .form-actions

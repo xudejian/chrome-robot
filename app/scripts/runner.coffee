@@ -4,10 +4,18 @@ noop = ->
 
 parse_rv = (data) ->
   return unless data.success
+  job = data.job
   msg =
     op: 'parsed'
-    job: data.job
+    job: job
   chrome.runtime.sendMessage msg
+  name = job.name || ''
+  return unless robots[name]
+  json =
+    site: name
+    info: job.res
+    url: job.url
+  robots[name].submit_json json
 
 console_rv = (data) ->
   console.log data

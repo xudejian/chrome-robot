@@ -46,6 +46,7 @@ class Robot extends EventEmitter
     @add_info_re (options.info_regexp || [])
     @add_list_re (options.list_regexp || [])
     @working = if options.stop then false else true
+    @save_url = options.save_url
     @emit 'option', @name, options
 
   merge_array = (arr, items) ->
@@ -231,6 +232,15 @@ class Robot extends EventEmitter
       @data.done = {}
       chrome.storage.local.set @_data
       @emit 'clean'
+
+  submit_json: (obj) ->
+    return unless @save_url
+
+    data = JSON.stringify obj
+    xhr = new XMLHttpRequest()
+    xhr.open 'POST', @save_url, true
+    xhr.setRequestHeader 'Content-type','application/json; charset=utf-8'
+    xhr.send data
 
   get_web: (url, config={}) ->
     config.timeout ?= HTTP_REQUEST_TIMEOUT
