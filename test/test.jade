@@ -19,7 +19,7 @@ html
     // endbuild
     script.
       mocha.setup('bdd');
-      expect = chai.expect;
+      var expect = chai.expect;
 
     // build:js({.tmp,app}) scripts/modules.js
     script(src="bower_components/lodash/dist/lodash.js")

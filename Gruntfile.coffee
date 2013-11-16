@@ -73,14 +73,9 @@ module.exports = (grunt) ->
         options:
           middleware: (connect) ->
             [
+              mountFolder connect, yeomanConfig.app
               mountFolder connect, '.tmp'
               mountFolder connect, 'test'
-            ]
-      dist:
-        options:
-          middleware: (connect) ->
-            return [
-              mountFolder connect, yeomanConfig.dist
             ]
       # connect end
     open:
@@ -132,7 +127,7 @@ module.exports = (grunt) ->
       all:
         options:
           run: true
-          urls: ['http://localhost:<%= connect.options.port %>/index.html']
+          urls: ['http://localhost:<%= connect.options.port %>/test.html']
       # mocha end
 
     coffee:
@@ -200,7 +195,6 @@ module.exports = (grunt) ->
             '<%= yeoman.app %>/bower_components/chai/chai.js'
             '<%= yeoman.app %>/bower_components/sinon-chai/lib/sinon-chai.js'
             '<%= yeoman.app %>/bower_components/sinonjs/sinon.js'
-            '<%= yeoman.app %>/test/config.js'
           ]
         ]
 
@@ -330,6 +324,8 @@ module.exports = (grunt) ->
         'compass:server'
       ]
       test: [
+        'jade'
+        'copy:dev'
         'coffee'
         'compass'
       ]
@@ -365,34 +361,21 @@ module.exports = (grunt) ->
           dest: '<%= yeoman.dist %>/scripts'
         ]
 
-    karma:
-      server:
-        configFile: 'karma.conf.coffee'
-        background: true
-        singleRun: false
-        autoWatch: true
-      unit:
-        configFile: 'karma.conf.coffee'
-        singleRun: true
-
   grunt.registerTask 'server', (target) ->
-    if target == 'dist'
-      return grunt.task.run ['build', 'open', 'connect:dist:keepalive']
-
     grunt.task.run [
       'clean:server'
       'concurrent:server'
       'connect:livereload'
       'open'
-      'karma:server'
+      'mocha'
       'watch'
     ]
 
   grunt.registerTask 'test', [
     'clean:server'
     'concurrent:test'
-    #'connect:test'
-    'karma:unit'
+    'connect:test'
+    'mocha'
   ]
 
   grunt.registerTask 'build', [
