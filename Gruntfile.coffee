@@ -58,7 +58,7 @@ module.exports = (grunt) ->
 
     connect:
       options:
-        port: 9000
+        port: 9876
         # change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost'
       livereload:
@@ -66,8 +66,8 @@ module.exports = (grunt) ->
           middleware: (connect) ->
             return [
               lrSnippet
-              mountFolder connect, '.tmp'
               mountFolder connect, yeomanConfig.app
+              mountFolder connect, '.tmp'
             ]
       test:
         options:
@@ -367,7 +367,6 @@ module.exports = (grunt) ->
       'concurrent:server'
       'connect:livereload'
       'open'
-      'mocha'
       'watch'
     ]
 
