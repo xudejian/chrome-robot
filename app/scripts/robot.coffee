@@ -16,6 +16,8 @@ class Robot extends EventEmitter
     @list_todo = []
     @info_todo = []
 
+    @submit_data = ->
+
     @reset_options()
     @options options
     @system_busy false
@@ -39,6 +41,7 @@ class Robot extends EventEmitter
     @seeds = []
     @list_re = []
     @info_re = []
+    @submit_data = ->
     @emit 'option', @name, {}
 
   options: (options={}) ->
@@ -47,6 +50,11 @@ class Robot extends EventEmitter
     @add_list_re (options.list_regexp || [])
     @working = if options.stop then false else true
     @save_url = options.save_url
+    if @save_url
+      @submit_data = if options.send_json then @submit_json else @submit_form
+    else
+      @submit_data = ->
+
     @emit 'option', @name, options
 
   merge_array = (arr, items) ->
@@ -233,9 +241,22 @@ class Robot extends EventEmitter
       chrome.storage.local.set @_data
       @emit 'clean'
 
-  submit_json: (obj) ->
-    return unless @save_url
+  param: (obj) ->
+    str = []
+    escape = (o) ->
+      encodeURIComponent if typeof(o) is 'object' then JSON.stringify o else o
+    for k, v of obj
+      str.push escape(k) + '=' + escape(v)
+    str.join '&'
 
+  submit_form: (obj) ->
+    data = @param obj
+    xhr = new XMLHttpRequest()
+    xhr.open 'POST', @save_url, true
+    xhr.setRequestHeader 'Content-type','application/x-www-form-urlencoded; charset=utf-8'
+    xhr.send data
+
+  submit_json: (obj) ->
     data = JSON.stringify obj
     xhr = new XMLHttpRequest()
     xhr.open 'POST', @save_url, true

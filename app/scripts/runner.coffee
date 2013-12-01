@@ -15,7 +15,7 @@ parse_rv = (data) ->
     site: name
     info: job.res
     url: job.url
-  robots[name].submit_json json
+  robots[name].submit_data json
 
 console_rv = (data) ->
   console.log data

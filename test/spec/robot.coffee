@@ -61,3 +61,15 @@ describe 'Robot', ->
       robot.options options
       robot.options options
       expect(robot.list_re).to.eql [fn_match_re]
+
+  describe 'robot param', ->
+    it 'should return a=b given {"a":"b"}', ->
+      expect(robot.param(a:'b')).to.eql 'a=b'
+    it 'should return a=b&c=d given {"a":"b","c":"d"}', ->
+      expect(robot.param(a:'b',c:'d')).to.eql 'a=b&c=d'
+    it 'should return a=b%20c  given {"a":"b c"}', ->
+      expect(robot.param(a:"b c")).to.eql 'a=b%20c'
+    it 'should return a=%7B%7D  given {"a":{}}', ->
+      expect(robot.param(a:{})).to.eql 'a=%7B%7D'
+    it 'should return a=%5B%5D  given {"a":[]}', ->
+      expect(robot.param(a:[])).to.eql 'a=%5B%5D'

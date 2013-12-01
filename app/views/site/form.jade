@@ -86,6 +86,9 @@ form.form-horizontal(ng-submit="save(site)", ng-controller="SiteFormCtrl")
 
       input.span5(ng-model="site.save_url", type="url",
       placeholder="save url")
+      label.checkbox
+        input(type="checkbox", ng-model="site.send_json")
+        |  Check for send data with json.
   .form-actions
     button.btn.btn-primary(type='submit') Save
     button.btn(type='button', ng-click='cancel()') Cancel
