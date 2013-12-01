@@ -141,6 +141,10 @@ module.exports = (grunt) ->
             dest: '<%= yeoman.cmp %>/scripts'
             ext: '.js'
           ,
+            '<%= yeoman.cmp %>/scripts/filters.js': [
+              '<%= yeoman.app %>/scripts/filters/**/*.coffee'
+            ]
+          ,
             '<%= yeoman.cmp %>/scripts/controllers.js': [
               '<%= yeoman.app %>/scripts/controllers/**/*.coffee'
             ]

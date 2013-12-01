@@ -21,34 +21,34 @@ html(ng-app="chromeRobotApp", ng-csp="")
             li
               a(href="#/")
                 i.icon-home
-                |  Home
+                span(ng-bind='"home"|i18n') Home
             li.divider-vertical
             li
               a(ui-sref="sites.list")
                 i.icon-th-large
-                |  Sites
+                span(ng-bind='"sites"|i18n') Sites
             li.divider-vertical
             li
               a(href="#/works")
                 i.icon-tasks
-                |  Works
+                span(ng-bind='"works"|i18n') Works
             li.divider-vertical
             li
               a(href="#/options")
                 i.icon-wrench
-                |  Options
+                span(ng-bind='"options"|i18n') Options
             li.divider-vertical
             li
               a(href, ng-click="test()")
                 i.icon-flag
-                |  Test
+                span(ng-bind='"tests"|i18n') Test
             li.divider-vertical
     .container
       .row(ui-view)
     footer.footer
       hr
       .container
-        p Super-powered by Dejian Xu ©2013
+        p Super-powered by DJ Xu ©2013
     // build:js({.tmp,app}) scripts/modules.js
     script(src="bower_components/lodash/dist/lodash.js")
     script(src="bower_components/angular/angular.js")
@@ -73,6 +73,9 @@ html(ng-app="chromeRobotApp", ng-csp="")
     // build:js({.tmp,app}) scripts/app.js
     script(src="scripts/app.js")
     script(src="scripts/route.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/filters.js
+    script(src="scripts/filters.js")
     // endbuild
     // build:js({.tmp,app}) scripts/services.js
     script(src="scripts/services.js")
