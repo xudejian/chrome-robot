@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "爬虫",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "网络爬虫应用",
+    "description": "The description of the application"
+  }
+}
