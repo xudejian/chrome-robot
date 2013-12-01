@@ -1,20 +1,20 @@
 ul.nav.nav-tabs
   li.active
-    a List
+    a(ng-bind='"site_list"|i18n') List
   li
     a(ui-sref="^.new")
       i.icon-plus-sign
-      | New Site
+      span(ng-bind='"site_new"|i18n') New Site
 
 table.table.table-striped.table-hover
-  caption {{title}}
+  caption(ng-bind='"site_list_title"|i18n') Site List
   thead
     tr
       th #
-      th Site
-      th Seed
-      th Status
-      th Op
+      th(ng-bind='"site"|i18n') Site
+      th(ng-bind='"seed"|i18n') Seed
+      th(ng-bind='"status"|i18n') Status
+      th(ng-bind='"op"|i18n') Op
   tbody
     tr(ng-repeat="site in sites")
       td(ng-click="detail(site)") {{$index + 1}}
@@ -23,11 +23,12 @@ table.table.table-striped.table-hover
         | {{site.name}}
       td(ng-click="detail(site)") {{site.seed.join(',')}}
       td(ng-switch="site.stop")
-        span(ng-switch-when="true") Pause
-        span(ng-switch-default) Running
+        span(ng-switch-when="true", ng-bind='"pause"|i18n') Pause
+        span(ng-switch-default, ng-bind='"running"|i18n') Running
       td
         button.btn.btn-warning(type='button', ng-click='stop(site)',
-        ng-hide="site.stop") Pause
+        ng-hide="site.stop", ng-bind='"pause"|i18n') Pause
         button.btn.btn-info(type='button', ng-click='stop(site)',
-        ng-show="site.stop") Resume
-        button.btn(type='button', ng-click='detail(site)') Detail
+        ng-show="site.stop", ng-bind='"resume"|i18n') Resume
+        button.btn(type='button', ng-click='detail(site)',
+        ng-bind='"detail"|i18n') Detail

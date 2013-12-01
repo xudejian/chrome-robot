@@ -1,9 +1,9 @@
 ul.nav.nav-tabs
   li
-    a(ui-sref="^.list") List
+    a(ui-sref="^.list", ng-bind='"site_list"|i18n') List
   li.active
     a
       i.icon-plus-sign
-      | New Site
+      span(ng-bind='"site_new"|i18n') New Site
 
 include form

@@ -3,7 +3,7 @@ form.form-horizontal(ng-submit="save()")
     .controls
       label.checkbox
         input(type="checkbox", ng-model="autostart")
-        |  Autostart Robot when you start app
+        span(ng-bind='"option_autostart"|i18n') Autostart Robot when you start app
   .form-actions
-    button.btn.btn-primary(type='submit') Apply
-    button.btn(type='button', ng-click='cancel()') Cancel
+    button.btn.btn-primary(type='submit', ng-bind='"apply"|i18n') Apply
+    button.btn(type='button', ng-click='cancel()', ng-bind='"cancel"|i18n') Cancel
