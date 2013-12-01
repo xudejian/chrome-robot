@@ -6,5 +6,134 @@
   "appDescription": {
     "message": "网络爬虫应用",
     "description": "The description of the application"
+  },
+  "home": {
+    "message": "主页"
+  },
+  "sites": {
+    "message": "站点"
+  },
+  "works": {
+    "message": "工作台"
+  },
+  "options": {
+    "message": "系统选项"
+  },
+  "tests": {
+    "message": "测试"
+  },
+  "submit": {
+    "message": "提交"
+  },
+  "apply": {
+    "message": "应用"
+  },
+  "cancel": {
+    "message": "取消"
+  },
+  "option_autostart": {
+    "message": "在启动应用时，自动启动采集程序"
+  },
+  "restart": {
+    "message": "重启"
+  },
+  "pause": {
+    "message": "暂停"
+  },
+  "running": {
+    "message": "运行中"
+  },
+  "resume": {
+    "message": "恢复"
+  },
+  "detail": {
+    "message": "详情"
+  },
+  "work_title": {
+    "message": "爬虫工作台"
+  },
+  "work_find": {
+    "message": "找到$1"
+  },
+  "request": {
+    "message": "请求"
+  },
+  "work_referrer": {
+    "message": "源/信息"
+  },
+  "site_list": {
+    "message": "站点列表"
+  },
+  "site_new": {
+    "message": "新增站点"
+  },
+  "site_list_title": {
+    "message": "站点列表"
+  },
+  "site_detail_title": {
+    "message": "站点详情"
+  },
+  "site": {
+    "message": "站点"
+  },
+  "seed": {
+    "message": "采集点"
+  },
+  "status": {
+    "message": "状态"
+  },
+  "op": {
+    "message": "操作"
+  },
+  "dangerous_ops": {
+    "message": "危险操作"
+  },
+  "add": {
+    "message": "新增"
+  },
+  "clean": {
+    "message": "清理"
+  },
+  "delete": {
+    "message": "删除"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "site_form_name": {
+    "message": "站点名称:"
+  },
+  "site_form_seed": {
+    "message": "采集点URL:"
+  },
+  "site_form_list_re": {
+    "message": "列表页长得像:"
+  },
+  "site_form_info_re": {
+    "message": "信息页长得像:"
+  },
+  "site_form_noquery": {
+    "message": "舍弃URL中的参数."
+  },
+  "site_form_info_parse": {
+    "message": "信息分析方法:"
+  },
+  "site_form_info_parse_tip": {
+    "message": "将信息分析代码贴在这里, 请以对象的方式返回分析结果"
+  },
+  "site_form_info_save": {
+    "message": "信息保存URL:"
+  },
+  "site_form_info_save_tip": {
+    "message": "以POST方式将分析结果发送给您的服务器, 可以像这样接收"
+  },
+  "site_form_example_nodejs": {
+    "message": "Nodejs Express 代码"
+  },
+  "site_form_example_php": {
+    "message": "PHP 代码"
+  },
+  "site_form_send_json": {
+    "message": "以JSON格式返回数据."
   }
 }
