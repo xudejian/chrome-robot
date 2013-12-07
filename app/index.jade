@@ -2,11 +2,17 @@ doctype 5
 html(ng-app="chromeRobotApp", ng-csp="")
   head
     meta(charset="utf-8")
-    title {{title}}
+    title Chrome Robot
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    // build:css({.tmp,app}) styles/app.css
+    link(href="bower_components/angular/angular-csp.css", rel="stylesheet")
     link(href="styles/main.css", rel="stylesheet")
+    link(href="styles/work.css", rel="stylesheet")
+    link(href="bower_components/codemirror/lib/codemirror.css", rel="stylesheet")
+    link(href="bower_components/codemirror/theme/solarized.css", rel="stylesheet")
+    // endbuild
   body
-    header.header.navbar.navbar-fixed-top
+    header.header.navbar.navbar-fixed-top(ng-controller='HeaderCtrl')
       .navbar-inner
         .container
           a.brand(href="#/") Chrome Robot
@@ -15,40 +21,65 @@ html(ng-app="chromeRobotApp", ng-csp="")
             li
               a(href="#/")
                 i.icon-home
-                |  Home
+                span(ng-bind='"home"|i18n') Home
             li.divider-vertical
             li
-              a(href="#/options")
-                i.icon-wrench
-                |  Options
+              a(ui-sref="sites.list")
+                i.icon-th-large
+                span(ng-bind='"sites"|i18n') Sites
             li.divider-vertical
             li
               a(href="#/works")
                 i.icon-tasks
-                |  Works
+                span(ng-bind='"works"|i18n') Works
             li.divider-vertical
             li
-              a(href="#/sites")
-                i.icon-th-large
-                |  Sites
+              a(href="#/options")
+                i.icon-wrench
+                span(ng-bind='"options"|i18n') Options
+            li.divider-vertical
+            li
+              a(href, ng-click="test()")
+                i.icon-flag
+                span(ng-bind='"tests"|i18n') Test
             li.divider-vertical
     .container
       .row(ui-view)
     footer.footer
       hr
       .container
-        p Super-powered by Dejian Xu ©2013
+        p Super-powered by DJ Xu ©2013
     // build:js({.tmp,app}) scripts/modules.js
+    script(src="bower_components/lodash/dist/lodash.js")
     script(src="bower_components/angular/angular.js")
-    script(src="bower_components/angular-resource/angular-resource.js")
+    script(src="bower_components/underscore.string/lib/underscore.string.js")
     script(src="bower_components/angular-sanitize/angular-sanitize.js")
     script(src="bower_components/angular-ui-router/release/angular-ui-router.js")
     script(src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js")
+    script(src="bower_components/eventEmitter/EventEmitter.js")
+    script(src="scripts/html-domparser.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/ui-codemirror.js
+    script(src="bower_components/codemirror/lib/codemirror.js")
+    script(src="bower_components/codemirror/mode/javascript/javascript.js")
+    script(src="bower_components/angular-ui-codemirror/ui-codemirror.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/utils.js
+    script(src="scripts/utils.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/robot.js
+    script(src="scripts/robot.js")
     // endbuild
     // build:js({.tmp,app}) scripts/app.js
     script(src="scripts/app.js")
     script(src="scripts/route.js")
     // endbuild
+    // build:js({.tmp,app}) scripts/filters.js
+    script(src="scripts/filters.js")
+    // endbuild
+    // build:js({.tmp,app}) scripts/services.js
+    script(src="scripts/services.js")
+    // endbuild
     // build:js({.tmp,app}) scripts/controllers.js
-    script(src="scripts/controllers/**/*.js")
+    script(src="scripts/controllers.js")
     // endbuild

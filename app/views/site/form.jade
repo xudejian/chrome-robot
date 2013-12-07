@@ -1,0 +1,99 @@
+form.form-horizontal(ng-submit="save(site)", ng-controller="SiteFormCtrl")
+  .control-group
+    label.control-label(for='name', ng-bind='"site_form_name"|i18n') Site Name:
+    .controls
+      input.span5#name(ng-model="site.name", type="text",
+      placeholder="site name", required)
+  .control-group
+    label.control-label(for='seed', ng-bind='"site_form_seed"|i18n') Start Url:
+    .controls
+      ul
+        li(ng-repeat="seed in site.seed")
+          | {{seed}}
+          button.btn.btn-link(type='button', ng-click='rm_seed(site, seed)')
+            i.icon-remove
+      .input-append
+        input.span5#seed(ng-model="new_seed", type="url",
+        placeholder="http://your.site.com/")
+        button.btn(type='button', ng-click='add_seed(site)',
+        ng-bind='"add"|i18n') Add
+  .control-group
+    label.control-label(for='list_re', ng-bind='"site_form_list_re"|i18n')
+      list page like:
+    .controls
+      ul
+        li(ng-repeat="re in site.list_regexp")
+          | {{re}}
+          button.btn.btn-link(type='button', ng-click='rm_list_re(site, re)')
+            i.icon-remove
+      .input-append
+        input.span5#list_re(ng-model="list_re", type="text",
+        typeahead="re for re in suggest($viewValue)",
+        placeholder="list page url pattern")
+        button.btn(type="button", ng-click="add_list_regex(site)",
+        ng-bind='"add"|i18n') Add
+  .control-group
+    label.control-label(for='info_re', ng-bind='"site_form_info_re"|i18n')
+      info page like:
+    .controls
+      ul
+        li(ng-repeat="re in site.info_regexp")
+          | {{re}}
+          button.btn.btn-link(type='button', ng-click='rm_info_re(site, re)')
+            i.icon-remove
+      .input-append
+        input.span5#info_re(ng-model="info_re", type="text",
+        typeahead="re for re in suggest($viewValue)",
+        placeholder="info page url pattern")
+        button.btn(type="button", ng-click="add_info_regex(site)",
+        ng-bind='"add"|i18n') Add
+  .control-group
+    .controls
+      label.checkbox
+        input(type="checkbox", ng-model="site.noquery")
+        span(ng-bind='"site_form_noquery"|i18n') Avoid links with arguments.
+        small (e.g.&nbsp;page?foo=bar)
+  .control-group
+    label.control-label(ng-bind='"site_form_info_parse"|i18n') info parse:
+    .controls
+      label(ng-bind='"site_form_info_parse_tip"|i18n').
+        just paste your parse function code here, and
+        return your results object
+      code exports.parse = function (content, document, window) {
+      .row
+        .span6
+          textarea(ui-codemirror="editorOptions", ng-model="site.info_parse")
+      code };
+  .control-group
+    label.control-label(ng-bind='"site_form_info_save"|i18n') info save:
+    .controls
+      label(ng-bind='"site_form_info_save_tip"|i18n').
+        post the parsed info (json) to your server, you can receive like this
+      details
+        summary(ng-bind='"site_form_example_nodejs"|i18n') Nodejs express Example
+        pre.
+          var app, express;
+          express = require('express');
+          app = express();
+          app.use(express.bodyParser());
+          app.post('/', function(req, res) {
+            console.log(req.body);
+            return res.send(201);
+          });
+          app.listen(3000);
+          console.log('ready');
+      details
+        summary(ng-bind='"site_form_example_php"|i18n') PHP Example
+        pre.
+          $data = file_get_contents("php://input");
+          $json = json_decode($data);
+          # ...
+
+      input.span5(ng-model="site.save_url", type="url",
+      placeholder="save url")
+      label.checkbox
+        input(type="checkbox", ng-model="site.send_json")
+        span(ng-bind='"site_form_send_json"|i18n') Check for send data with json.
+  .form-actions
+    button.btn.btn-primary(type='submit', ng-bind='"save"|i18n') Save
+    button.btn(type='button', ng-click='cancel()', ng-bind='"cancel"|i18n') Cancel

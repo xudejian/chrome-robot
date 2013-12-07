@@ -1,358 +1,298 @@
 'use strict'
 
-chrome.runtime.onInstalled.addListener (details) ->
-  console.log 'installed', details
+class Robot extends EventEmitter
+  HTTP_REQUEST_TIMEOUT = 30 * 1000
+  FETCH_IDLE_GAP = 10
+  FETCH_BUSY_GAP = 3 * 1000
+  FETCH_WAIT_REQ = 3 * 1000
 
-# Listens for the app launching then creates the window
-#
-# @see http://developer.chrome.com/trunk/apps/experimental.app.html
-# @see http://developer.chrome.com/trunk/apps/app.window.html
+  constructor: (@name, options) ->
+    unless @name or @name.length
+      throw msg: 'robot should have a name'
+    @_ready = false
+    @working = false
+    @nproc = 1
 
-chrome.app.runtime.onLaunched.addListener ->
-  chrome.app.window.create 'index.html'
+    @list_todo = []
+    @info_todo = []
 
-HTTP_REQUEST_TIMEOUT = 30 * 1000
-HEAD_REQUEST_TIMEOUT = 5 * 1000
-RESULTS_TITLE = 'Chrome Robot Work'
-SPIDER_MIME = [
-  'text/html'
-  'text/plain'
-  'text/xml'
-]
+    @submit_data = ->
 
-popupDoc = null
-allowedText = ''
-allowedRegex = null
-allowPlusOne = false
-allowArguments = false
-checkInline = false
-checkScripts = false
-pagesTodo = {}
-pagesDone = {}
-spiderTab = null
-resultsTab = null
-httpRequest = null
-httpRequestWatchDogPid = 0
-newTabWatchDogPid = 0
-started = false
-paused = false
-currentRequest =
-  requestedURL:null
-  returnedURL:null
-  referrer:null
+    @reset_options()
+    @options options
+    @system_busy false
 
-@popupLoaded = (doc) ->
-  popupDoc = doc
-  chrome.tabs.getSelected null, setDefaultUrl_
+    @data = {}
+    @_data = {}
+    chrome.storage.local.get @name, (data) =>
+      @_data = data
+      data[@name] ?= @data
+      @data = data[@name]
+      @data.todo ?= {}
+      @data.done ?= {}
+      chrome.storage.local.set data
 
-setDefaultUrl_ = (tab) ->
-  if tab and tab.url and tab.url.match /^\s*https?:\/\//i
-    url = tab.url
-  else
-    url = 'http://www.example.com/'
+      @restore_job @data.todo
+      @prepare_from_seed()
+      @_ready = true
+      @emit 'ready'
 
-  popupDoc.getElementById('start').value = url
+  reset_options: ->
+    @seeds = []
+    @list_re = []
+    @info_re = []
+    @submit_data = ->
+    @emit 'option', @name, {}
 
-  allowedText = url
-  allowedText = trimAfter allowedText, '#'
-  allowedText = trimAfter allowedText, '?'
-  offset = allowedText.lastIndexOf '/'
-  if offset > 'https://'.length
-    allowedText = allowedText.substring 0, offset + 1
+  options: (options={}) ->
+    @seed (options.seed || [])
+    @add_info_re (options.info_regexp || [])
+    @add_list_re (options.list_regexp || [])
+    @working = if options.stop then false else true
+    @save_url = options.save_url
+    if @save_url
+      @submit_data = if options.send_json then @submit_json else @submit_form
+    else
+      @submit_data = ->
 
-  allowedText = allowedText.replace /([\^\$\.\*\+\?\=\!\:\|\\\(\)\[\]\{\}])/g, '\\$1'
-  allowedText = '^' + allowedText
-  popupDoc.getElementById('regex').value = allowedText
+    @emit 'option', @name, options
 
-  popupDoc.getElementById('plusone').checked = allowPlusOne
-  popupDoc.getElementById('arguments').checked = !allowArguments
-  popupDoc.getElementById('inline').checked = checkInline
-  popupDoc.getElementById('scripts').checked = checkScripts
+  merge_array = (arr, items) ->
+    items = [items] unless Array.isArray items
+    indexOf = (arr, item) ->
+      item_str = item.toString()
+      return i for it,i in arr when it.toString() is item_str
+      return -1
+    for item in items when -1 is indexOf arr, item
+      arr.push item
 
-trimAfter = (string, sep) ->
-  offset = string.indexOf sep
-  if offset != -1
-    return string.substring 0, offset
-  string
+  add_list_re: (regexp) ->
+    regexp = [regexp] unless Array.isArray regexp
+    regexps = (utils.smart_regexp(re) for re in regexp)
+    merge_array @list_re, regexps
 
-@popupGo = ->
-
-  console.log 'popupGo'
-  popupStop()
-
-  resultsWindows = chrome.extension.getViews type: 'tab'
-  console.log 'resultsWindows', resultsWindows
-
-  for x in resultsWindows
-    doc = x.document
-    console.log 'tab title: ', doc
-    if doc.title == RESULTS_TITLE
-      console.log x
-      doc.title = RESULTS_TITLE + ' - Closed'
-
-  # Attempt to parse the allowed URL regex.
-  input = popupDoc.getElementById 'regex'
-  allowedText = input.value
-  try
-    allowedRegex = new RegExp allowedText
-  catch e
-    alert 'Restrict regex error:\n' + e
-    popupStop()
+  dump_regexp_list: ->
+    console.log "-- info re --"
+    console.log i, re.toString() for re, i in @info_re
+    console.log "-- list re --"
+    console.log i, re.toString() for re, i in @list_re
     return
 
-  #Save settings for checkboxes.
-  allowPlusOne = popupDoc.getElementById('plusone').checked
-  allowArguments = !popupDoc.getElementById('arguments').checked
-  checkInline = popupDoc.getElementById('inline').checked
-  checkScripts = popupDoc.getElementById('scripts').checked
+  add_info_re: (regexp) ->
+    regexp = [regexp] unless Array.isArray regexp
+    regexps = (utils.smart_regexp(re) for re in regexp)
+    merge_array @info_re, regexps
 
-  # Initialize the todo and done lists.
-  pagesTodo = {}
-  pagesDone = {}
-  # Add the start page to the todo list.
-  startPage = popupDoc.getElementById('start').value
-  console.log 'startPage', startPage
-  pagesTodo[startPage] = '[root page]'
+  is_list: (url) ->
+    return true for re in @list_re when re.test url
 
-  resultsLoadCallback_ = (tab) ->
-    console.log 'resultsTab', tab
-    resultsTab = tab
-    window.setTimeout resultsLoadCallbackDelay_, 100
+  is_info: (url) ->
+    return true for re in @info_re when re.test url
 
-  resultsLoadCallbackDelay_ = ->
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"startingOn"
-      action:"setInnerHTML"
-      value:setInnerSafely startPage
+  seed: (seeds) ->
+    merge_array @seeds, seeds
 
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"restrictTo"
-      action:"setInnerHTML"
-      value:setInnerSafely allowedText
-    # Start spidering.
-    started = true
-    spiderPage()
+  trimAfter = (string, sep) ->
+    offset = string.indexOf sep
+    if offset isnt -1
+      return string.substring 0, offset
+    string
 
-  # Open a tab for the results.
-  chrome.tabs.create url: '/index.html#/works', resultsLoadCallback_
+  already_todo: (url) ->
+    true if @in_done(url) or @in_todo(url)
 
-setInnerSafely = (msg) ->
-  msg.toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  add_job_url: (url, referrer) ->
+    url = trimAfter url, '#'
+    return if @already_todo url
+    @add_job
+      url: url
+      url_count: 0
+      referrer: referrer
+      status: 'queue'
 
-popupStop = ->
-  started= false
-  pagesTodo = {}
-  closeSpiderTab()
-  spiderTab = null
-  resultsTab = null
-  window.clearTimeout httpRequestWatchDogPid
-  window.clearTimeout newTabWatchDogPid
-  popupDoc.getElementById('robot_go').disabled = false
+  add_job_seed: (url) ->
+    return if @already_todo url
+    @add_list_job
+      url: url
+      url_count: 0
+      referrer: url
+      status: 'seed'
 
-spiderPage = ->
-  console.log 'spiderPage'
-  currentRequest =
-    requestedURL:null
-    returnedURL:null
-    referrer:null
+  in_done: (url) ->
+    url = url.toLowerCase()
+    @data.done.hasOwnProperty url
 
-  return if paused
-  setStatus 'Next page...'
-  return unless resultsTab
+  fetched: (url) ->
+    url = url.toLowerCase()
+    @data.done[url] = 1
+    delete @data.todo[url]
+    chrome.storage.local.set @_data, ->
 
-  # Pull one page URL out of the todo list.
-  url = null
-  for url in pagesTodo
-    break
+  in_todo: (url) ->
+    url = url.toLowerCase()
+    @data.todo.hasOwnProperty url
 
-  unless url
-    # Done.
-    setStatus 'Complete'
-    popupStop()
-    return
-  # Record page details.
-  currentRequest.referrer = pagesTodo[url]
-  currentRequest.requestedURL = url
-  delete pagesTodo[url]
-  pagesDone[url] = true
+  add_todo: (url) ->
+    url = url.toLowerCase()
+    @data.todo[url] = 1
+    chrome.storage.local.set @_data, ->
 
-  # Fetch this page using Ajax.
-  setStatus 'Prefetching ' + url
-  httpRequestWatchDogPid = window.setTimeout httpRequestWatchDog, HEAD_REQUEST_TIMEOUT
-  httpRequest = new XMLHttpRequest()
-  httpRequest.onreadystatechange = httpRequestChange
-  httpRequest.open 'HEAD', url, false
-  # For some reason this request only works intermitently when called directly.
-  # Delay request by 1ms.
-  window.setTimeout (-> httpRequest.send(null)), 1
+  add_info_job: (job) ->
+    job.info = true
+    @add_todo job.url
+    @info_todo.push job
+    @emit 'todo.info', job
 
-httpRequestWatchDog = ->
-  console.log("httpRequestWatchDog")
-  setStatus('Aborting HTTP Request')
-  if httpRequest
-    httpRequest.abort()
-    # Log your miserable failure.
-    currentRequest.returnedURL=null
-    recordPage(currentRequest)
-    httpRequest = null
-  window.setTimeout(spiderPage, 1)
+  add_list_job: (job) ->
+    job.list = true
+    @add_todo job.url
+    @list_todo.push job
+    @emit 'todo.list', job
 
-newTabWatchDog = ->
-  console.log("newTabWatchDog")
-  setStatus('Aborting New Tab')
-  closeSpiderTab()
+  add_job: (job) ->
+    if @is_info job.url
+      @add_info_job job
+    else if @is_list job.url
+      @add_list_job job
 
-  # Log your miserable failure.
-  currentRequest.returnedURL=null
-  recordPage(currentRequest)
+  restore_job: (todos) ->
+    urls = Object.keys todos
+    for url in urls
+      job =
+        url: url
+        url_count: 0
+        status: 'restore'
+      if @is_info url
+        @add_info_job job
+      else if @is_list url
+        @add_list_job job
 
-  window.setTimeout(spiderPage, 1)
+  job_fetch_done: (job, data, status) ->
+    @fetched job.url
+    @parse_fetched_content job, data
 
-httpRequestChange = ->
-  console.log("httpRequestChange")
+  parse_fetched_content: (job, data) ->
+    canfollow = (link) -> link.rel.toLowerCase() isnt 'nofollow'
+    doc = utils.world data, job.url
+    links = (link.href for link in doc.links when canfollow link)
+    job.url_count = links.length
+    job.content = data
+    job.links = links
 
-  # Still loading.  Wait for it.
-  return if (!httpRequest || httpRequest.readyState < 2)
+    job.name = @name
+    @emit 'response', job
+    @add_job_url link, job.url for link in links
 
-  code = httpRequest.status
-  mime = httpRequest.getResponseHeader('Content-Type') || '[none]'
-  httpRequest = null
-  window.clearTimeout(httpRequestWatchDogPid)
-  setStatus('Prefetched ' + currentRequest.requestedURL + ' (' + mime + ')')
+  do_job_once: (next) ->
+    job = @info_todo.shift() || @list_todo.shift()
+    return next.call @ unless job
+    job.status = 100
+    config =
+      success: (status, data, headers) =>
+        job.status = status
+        @job_fetch_done job, data, status
+        next.call @
+      error: (status) =>
+        job.status = status
+        if status is 408
+          job.retry ?= 2
+          job.retry -= 1
+          if job.retry > 0
+            return @get_web job.url, config
+          @emit 'timeout', job
+        next.call @
+    @get_web job.url, config
+    @emit 'request', job
 
-  # 'SPIDER_MIME' is a list of allowed mime types.
-  # 'mime' could be in the form of "text/html charset=utf-8"
-  # For each allowed mime type, check for its presence in 'mime'.
-  mimeOk = false
-  for x in SPIDER_MIME
-    if mime.indexOf(x) != -1
-      mimeOk = true
-      break
+  do_job: ->
+    next = =>
+      return unless @working
+      unless @info_todo.length or @list_todo.length
+        return setTimeout next, FETCH_WAIT_REQ
+      @do_job_once @do_job
+    setTimeout next, @fetch_gap
 
-  # If this is a redirect or an HTML page, open it in a new tab and
-  # look for links to follow.  Otherwise, move on to next page.
-  is_redirect = ->
-    return false unless currentRequest.requestedURL.match allowedRegex
-    return true if code >= 300 and code < 400
-    return code < 300 and mimeOk
-  if is_redirect()
-    setStatus('Fetching ' + currentRequest.requestedURL)
-    newTabWatchDogPid = window.setTimeout(newTabWatchDog, HTTP_REQUEST_TIMEOUT)
-    chrome.tabs.create(
-      url: currentRequest.requestedURL
-      selected: false
-      , spiderLoadCallback_)
-  else
-    currentRequest.returnedURL = "Skipped"
-    recordPage(currentRequest)
+  prepare_from_seed: ->
+    @ready =>
+      @add_job_seed url for url in @seeds
 
-    window.setTimeout(spiderPage, 1)
+  system_busy: (busy) ->
+    @_system_busy = not not busy
+    @fetch_gap = if busy then FETCH_BUSY_GAP else FETCH_IDLE_GAP
 
-spiderLoadCallback_ = (tab) ->
-  spiderTab = tab
-  setStatus('Spidering ' + spiderTab.url)
-  chrome.tabs.executeScript spiderTab.id, file: 'spider.js'
+  ready: (cb) ->
+    if @_ready
+      cb()
+    else
+      @once 'ready', cb
+  start: ->
+    @working = true
+    @prepare_from_seed()
+    @do_job()
+    @emit 'start'
 
-#Add listener for message events from the injected spider code.
-chrome.extension.onMessage.addListener (request, sender, sendResponse) ->
-  if 'links' in request
-    spiderInjectCallback request.links, request.inline, request.scripts, request.url
+  stop: ->
+    @working = false
+    @emit 'stop'
 
-  if 'stop' in request
-    if started
-      if request.stop =="Stopping"
-        setStatus("Stopped")
-        chrome.tabs.sendMessage resultsTab.id,
-          method:"getElementById"
-          id:"stopSpider"
-          action:"setValue"
-          value:"Stopped"
-        popupStop()
-  if 'pause' in request
-    if request.pause =="Resume" && started && !paused
-      paused=true
-    if request.pause =="Pause" && started && paused
-      paused=false
-      spiderPage()
+  clean: ->
+    @ready =>
+      @data.done = {}
+      chrome.storage.local.set @_data
+      @emit 'clean'
 
-spiderInjectCallback = (links, inline, scripts, url) ->
-  window.clearTimeout(newTabWatchDogPid)
+  param: (obj) ->
+    str = []
+    escape = (o) ->
+      encodeURIComponent if typeof(o) is 'object' then JSON.stringify o else o
+    for k, v of obj
+      str.push escape(k) + '=' + escape(v)
+    str.join '&'
 
-  setStatus('Scanning ' + url)
-  currentRequest.returnedURL = url
+  submit_form: (obj) ->
+    data = @param obj
+    xhr = new XMLHttpRequest()
+    xhr.open 'POST', @save_url, true
+    xhr.setRequestHeader 'Content-type','application/x-www-form-urlencoded; charset=utf-8'
+    xhr.send data
 
-  # In the case of a redirect this URL might be different than the one we
-  # marked spidered above.  Mark this one as spidered too.
-  pagesDone[url] = true
+  submit_json: (obj) ->
+    data = JSON.stringify obj
+    xhr = new XMLHttpRequest()
+    xhr.open 'POST', @save_url, true
+    xhr.setRequestHeader 'Content-type','application/json; charset=utf-8'
+    xhr.send data
 
-  if checkInline
-    links = links.concat(inline)
-  if checkScripts
-    links = links.concat(scripts)
+  get_web: (url, config={}) ->
+    config.timeout ?= HTTP_REQUEST_TIMEOUT
+    config.success ?= ->
+    config.error ?= ->
 
-  # Add any new links to the Todo list.
-  for link in links
-    link = trimAfter(link, '#')
-    if link && !(link in pagesDone) && !(link in pagesTodo)
-      if allowArguments || link.indexOf('?') == -1
-        if link.match(allowedRegex) || (allowPlusOne && url.match(allowedRegex))
-          pagesTodo[link] =url
+    xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = ->
+      if xhr.readyState is 3
+        ct = xhr.getResponseHeader("content-type") || "text/html"
+        if -1 is ct.indexOf 'text/'
+          xhr.abort()
+          xhr = null
+          config.error 415
+      return unless xhr.readyState is 4
+      clearTimeout tid
+      responseHeaders = xhr.getAllResponseHeaders()
+      response = if xhr.responseType then xhr.response else xhr.responseText
+      config.success xhr.status, response, responseHeaders
+      xhr = null
+    xhr.open 'GET', url, true
+    xhr.timeout = config.timeout
+    xhr.setRequestHeader "Accept", "text/*"
+    xhr.send()
 
-  # Close this page and mark done.
-  recordPage(currentRequest)
-  # We want a slight delay before closing as a tab may have scripts loading
-  window.setTimeout (-> closeSpiderTab()), 18
-  window.setTimeout (-> spiderPage()), 20
+    timeout_handle = ->
+      return unless xhr
+      xhr.abort()
+      xhr = null
+      config.error 504
 
+    tid = setTimeout timeout_handle, config.timeout + 10
 
-closeSpiderTab = ->
-  if spiderTab
-    chrome.tabs.remove spiderTab.id
-    spiderTab = null
-
-recordPage = ->
-  if currentRequest.requestedURL != null and currentRequest.returnedURL == null
-    codeclass = 'x0'
-    currentRequest.returnedURL = "Error"
-  cu = currentRequest.requestedURL
-  cu = "<a href='#{cu}' target='spiderpage' title='#{cu}'>#{cu}</a>"
-  value = '<td>' + cu + '</td>' +
-    '<td class="' + codeclass + '"><span title="' + currentRequest.returnedURL + '">' + currentRequest.returnedURL + '</span></td>' +
-    '<td><span title="' + currentRequest.referrer + '">' + currentRequest.referrer + '</span></td>'
-
-  chrome.tabs.sendMessage resultsTab.id,
-    method:"custom"
-    action:"insertResultBodyTR"
-    value:value
-
-setStatus = (msg) ->
-  return unless started
-
-  try
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"stopSpider"
-      action:"getValue"
-    , (response) ->
-      if started and (response == "" || response == null)
-        popupStop()
-        alert 'Lost access to results pane. Halting.'
-
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"queue"
-      action:"setInnerHTML"
-      value:Object.keys(pagesTodo).length
-
-    chrome.tabs.sendMessage resultsTab.id,
-      method:"getElementById"
-      id:"status"
-      action:"setInnerHTML"
-      value:setInnerSafely(msg)
-  catch err
-    popupStop()
+@Robot = Robot

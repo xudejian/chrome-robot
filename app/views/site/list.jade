@@ -1,4 +1,34 @@
-h1 {{title}}
+ul.nav.nav-tabs
+  li.active
+    a(ng-bind='"site_list"|i18n') List
+  li
+    a(ui-sref="^.new")
+      i.icon-plus-sign
+      span(ng-bind='"site_new"|i18n') New Site
 
-a(ui-sref="sites.new") new site
-.row(ui-view='')
+table.table.table-striped.table-hover
+  caption(ng-bind='"site_list_title"|i18n') Site List
+  thead
+    tr
+      th #
+      th(ng-bind='"site"|i18n') Site
+      th(ng-bind='"seed"|i18n') Seed
+      th(ng-bind='"status"|i18n') Status
+      th(ng-bind='"op"|i18n') Op
+  tbody
+    tr(ng-repeat="site in sites")
+      td(ng-click="detail(site)") {{$index + 1}}
+      td(ng-click="detail(site)")
+        img(ng-show="site.ico", ng-src="{{site.ico}}", alt="{{site.name}}")
+        | {{site.name}}
+      td(ng-click="detail(site)") {{site.seed.join(',')}}
+      td(ng-switch="site.stop")
+        span(ng-switch-when="true", ng-bind='"pause"|i18n') Pause
+        span(ng-switch-default, ng-bind='"running"|i18n') Running
+      td
+        button.btn.btn-warning(type='button', ng-click='stop(site)',
+        ng-hide="site.stop", ng-bind='"pause"|i18n') Pause
+        button.btn.btn-info(type='button', ng-click='stop(site)',
+        ng-show="site.stop", ng-bind='"resume"|i18n') Resume
+        button.btn(type='button', ng-click='detail(site)',
+        ng-bind='"detail"|i18n') Detail

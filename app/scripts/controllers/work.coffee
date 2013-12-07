@@ -1,51 +1,40 @@
 'use strict'
 
-messageDispatch = (request, sender, sendResponse) ->
-  # what are we using
-  element = switch request.method
-    when "getElementById"
-      document.getElementById request.id
-    when "getElementsByTag"
-      document.getElementById request.id
-
-  # what are we doing
-  switch request.action
-    when "getInnerHTML" then sendResponse element.innerHTML
-    when "getValue" then sendResponse element.value
-    when "setInnerHTML" then element.innerHTML = request.value
-    when "setValue" then element.value = request.value
-    when "insertResultBodyTR" then insertResultBodyTR request.value
-
-insertResultBodyTR = (innerHTML) ->
-  tbody = document.getElementById 'resultbody'
-  tr = document.createElement 'tr'
-  tr.innerHTML += innerHTML
-  tbody.appendChild tr
-
-
 angular.module('chromeRobotApp')
-  .controller 'WorkCtrl', ($scope, $window, $rootScope) ->
-    $rootScope.title = 'Chrome Robot Work'
-    $scope.btn = btn =
-      stop:'Stop'
-      pause:'Pause'
-    console.log 'work load'
+  .controller 'WorkCtrl', ($scope) ->
 
-    $scope.stop = ->
-      if btn.stop == "Stop"
-        btn.stop = "Stopping"
-      console.log btn.stop
+    $scope.jobs = {}
 
-      chrome.runtime.sendMessage stop: btn.stop
+    $scope.restart = ->
+      msg =
+        cmd: 'restart'
+      chrome.runtime.sendMessage msg
+      $scope.status = 'running'
 
     $scope.pause = ->
-      if btn.pause == "Pause"
-        btn.pause = "Resume"
-      else
-        btn.pause = "Pause"
-      console.log btn.pause
-      chrome.runtime.sendMessage pause: btn.pause
+      msg =
+        cmd: 'stop_all'
+      chrome.runtime.sendMessage msg
+    $scope.resume = ->
+      msg =
+        cmd: 'resume_all'
+      chrome.runtime.sendMessage msg
 
-    $window.addEventListener "load", ->
-      console.log 'addEventListener load'
-      chrome.runtime.onMessage.addListener messageDispatch
+    $scope.job_class = (job) ->
+      status = if angular.isNumber(job.status) then job.status else 0
+      status = parseInt(status/100, 10)
+      switch status
+        when 1 then 'info'
+        when 2 then 'success'
+        when 4 then 'warning'
+        when 5 then 'error'
+        else ''
+    message_handle = (request, sender, sendResponse) ->
+      return unless request.op
+      job = request.job
+      $scope.$apply ->
+        if _.size($scope.jobs) > 20
+          $scope.jobs = {}
+        $scope.jobs[job.url] = job
+
+    chrome.runtime.onMessage.addListener message_handle

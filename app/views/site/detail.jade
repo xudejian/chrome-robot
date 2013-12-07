@@ -1,0 +1,16 @@
+h1(ng-bind='"site_detail_title"|i18n') Site Detail
+
+include form
+
+.form-actions
+  h3(ng-bind='"dangerous_ops"|i18n') Dangerous ops
+  button.btn.btn-info(type='button', ng-click='stop(site)',
+  ng-hide="site.stop", ng-bind='"pause"|i18n') Pause
+  button.btn.btn-info(type='button', ng-click='stop(site)',
+  ng-show="site.stop", ng-bind='"resume"|i18n') Resume
+
+  button.btn.btn-warning(type='button', ng-click='clean(site)',
+  ng-bind='"clean"|i18n') Clean
+
+  button.btn.btn-danger(type='button', ng-click='destory(site)',
+  ng-bind='"delete"|i18n') Delete
