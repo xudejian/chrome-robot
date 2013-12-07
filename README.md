@@ -3,6 +3,14 @@ chrome-robot
 
 yo, chrome robot
 
+### What is it?
+
+chrome robot is a chrome app, it is a web crawler.
+
+### How to use?
+
+can you explorer it before i finish the howto?
+
 ### Author
 
 Dejian Xu
