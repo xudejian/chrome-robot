@@ -6,5 +6,138 @@
   "appDescription": {
     "message": "Chrome Robot Extension",
     "description": "The description of the application"
+  },
+  "home": {
+    "message": "Home"
+  },
+  "sites": {
+    "message": "Sites"
+  },
+  "works": {
+    "message": "Works"
+  },
+  "options": {
+    "message": "Options"
+  },
+  "tests": {
+    "message": "Tests"
+  },
+  "submit": {
+    "message": "Submit",
+    "description": "Submit"
+  },
+  "apply": {
+    "message": "Apply",
+    "description": "Apply"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel"
+  },
+  "option_autostart": {
+    "message": "Autostart Robot when you start app",
+    "description": "Autostart Robot when you start app"
+  },
+  "restart": {
+    "message": "Restart"
+  },
+  "pause": {
+    "message": "Pause"
+  },
+  "running": {
+    "message": "Running"
+  },
+  "work_title": {
+    "message": "Chrome Robot Work"
+  },
+  "work_find": {
+    "message": "find $1"
+  },
+  "request": {
+    "message": "Request"
+  },
+  "resume": {
+    "message": "Resume"
+  },
+  "detail": {
+    "message": "Detail"
+  },
+  "work_referrer": {
+    "message": "Referrer / Info"
+  },
+  "site_list": {
+    "message": "List"
+  },
+  "site_new": {
+    "message": "New Site"
+  },
+  "site_list_title": {
+    "message": "Site List"
+  },
+  "site_detail_title": {
+    "message": "Site Detail"
+  },
+  "site": {
+    "message": "Site"
+  },
+  "seed": {
+    "message": "Seed"
+  },
+  "status": {
+    "message": "Status"
+  },
+  "op": {
+    "message": "OP"
+  },
+  "dangerous_ops": {
+    "message": "Dangerous ops"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "clean": {
+    "message": "Clean"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "site_form_name": {
+    "message": "Site Name:"
+  },
+  "site_form_seed": {
+    "message": "Start Url:"
+  },
+  "site_form_list_re": {
+    "message": "list page like:"
+  },
+  "site_form_info_re": {
+    "message": "info page like:"
+  },
+  "site_form_noquery": {
+    "message": "Avoid links with arguments."
+  },
+  "site_form_info_parse": {
+    "message": "info parse function:"
+  },
+  "site_form_info_parse_tip": {
+    "message": "just paste your parse function code here, and return your results object"
+  },
+  "site_form_info_save": {
+    "message": "info save url:"
+  },
+  "site_form_info_save_tip": {
+    "message": "post the parsed info (json) to your server, you can receive like this"
+  },
+  "site_form_example_nodejs": {
+    "message": "Nodejs express Example"
+  },
+  "site_form_example_php": {
+    "message": "PHP Example"
+  },
+  "site_form_send_json": {
+    "message": "send back data with json."
   }
 }

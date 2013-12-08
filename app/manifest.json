@@ -11,22 +11,31 @@
     "default_locale": "en",
     "app": {
       "background": {
-        "scripts": ["scripts/background.js"]
-      }
-    },
-    "permissions": [
-      "https://www.google-analytics.com/",
-      "offline_enabled": true,
-      "identity",
-      "unlimitedStorage",
-      "notifications",
-      "geolocation",
-      "contextMenus",
-      "webview",
-      {
-        "socket": [
-          "tcp-connect"
+        "scripts": [
+          "scripts/EventEmitter.js",
+          "scripts/html-domparser.js",
+          "scripts/bloomfilter.js",
+          "scripts/utils.js",
+          "scripts/background.js",
+          "scripts/robot.js",
+          "scripts/runner.js"
         ]
       }
+    },
+    "sandbox": {
+      "pages": [
+        "sandbox.html"
+        , "test.html"
+      ]
+    },
+    "offline_enabled": true,
+    "permissions": [
+      "http://*/"
+      , "https://*/"
+      , "unlimitedStorage"
+      , "storage"
+      , "notifications"
+      , "idle"
+      , { "fileSystem": ["write"] }
     ]
 }

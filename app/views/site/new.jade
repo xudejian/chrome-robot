@@ -1,32 +1,9 @@
-h1 Add Site
-p
-  | Start on:
-  input(size=40, ng-model="site.seed", type="url")
-p
-  | Restrict to:
-  input(size=40, ng-model="site.regex", type="text")
-  button(type="button", ng-click="update_regex()")
-    i.icon-refresh
-p
-  label
-    input(type="checkbox", ng-model="site.plusone")
-    |  Follow one link beyond restriction.
-p
-  label
-    input(type="checkbox", ng-model="site.inline")
-    |  Check inline content.
-    small (CSS, images)
-p
-  label
-    input(type="checkbox", ng-model="site.scripts")
-    |  Check script content.
-    small (JavaScript, Flash)
-p
-  label
-    input(type="checkbox", ng-model="site.arguments")
-    |  Avoid links with arguments.
-    small (e.g.&nbsp;page?foo=bar)
-p
-  button.btn(type='button', ng-click='add_site(site)')
-    i.icon-plus
-    | Add
+ul.nav.nav-tabs
+  li
+    a(ui-sref="^.list", ng-bind='"site_list"|i18n') List
+  li.active
+    a
+      i.icon-plus-sign
+      span(ng-bind='"site_new"|i18n') New Site
+
+include form

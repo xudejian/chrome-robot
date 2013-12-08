@@ -11,4 +11,4 @@ describe 'Service: site', () ->
     site = _Site_
 
   it 'should do something', () ->
-    expect(!!site).toBe true
+    expect(!!site).to.be.true

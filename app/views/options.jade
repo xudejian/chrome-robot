@@ -1,2 +1,9 @@
-//- CHROME EXTENSION OPTION
-h1 options here
+form.form-horizontal(ng-submit="save()")
+  .control-group
+    .controls
+      label.checkbox
+        input(type="checkbox", ng-model="autostart")
+        span(ng-bind='"option_autostart"|i18n') Autostart Robot when you start app
+  .form-actions
+    button.btn.btn-primary(type='submit', ng-bind='"apply"|i18n') Apply
+    button.btn(type='button', ng-click='cancel()', ng-bind='"cancel"|i18n') Cancel

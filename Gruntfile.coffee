@@ -1,4 +1,3 @@
-# jshint camelcase: false
 'use strict'
 LIVERELOAD_PORT = 35729
 lrSnippet = require('connect-livereload') port: LIVERELOAD_PORT
@@ -21,6 +20,7 @@ module.exports = (grunt) ->
   yeomanConfig =
     app: 'app'
     dist: 'dist'
+    cmp: 'app'
 
   try
     yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app
@@ -30,37 +30,35 @@ module.exports = (grunt) ->
     yeoman: yeomanConfig
     watch:
       options:
-        spawn: true
         atBegin: true
+        livereload: LIVERELOAD_PORT
+        spawn: false
       jade:
         files: ['<%= yeoman.app %>/{,views/**/}*.jade']
-        tasks: ['jade:dist', 'useminPrepare', 'htmlmin', 'concat', 'usemin']
+        tasks: ['jade:dist']
+      jadeTest:
+        files: ['test/test.jade']
+        tasks: ['jade:test']
       coffee:
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee']
-        tasks: ['coffee:dist', 'useminPrepare', 'concat']
+        files: ['<%= yeoman.app %>/scripts/**/*.coffee']
+        tasks: ['coffee:dist']
       coffeeTest:
-        files: ['test/spec/{,*/}*.coffee']
+        files: ['test/**/*.coffee']
         tasks: ['coffee:test']
       compass:
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}']
         tasks: ['compass:server']
-      manifest:
-        files: ['<%= yeoman.app %>/manifest.json']
-        tasks: ['copy:watch']
-      livereload:
-        options:
-          livereload: LIVERELOAD_PORT
+      static:
         files: [
-          '.tmp/{,*/}*.html'
-          '.tmp/styles/{,*/}*.css'
-          '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js'
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+          '<%= yeoman.cmp %>/scripts/EventEmitter.js'
+          '<%= yeoman.cmp %>/scripts/bloomfilter.js'
         ]
+        tasks: ['copy:dev']
       # watch end
 
     connect:
       options:
-        port: 9000
+        port: 9876
         # change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost'
       livereload:
@@ -68,21 +66,16 @@ module.exports = (grunt) ->
           middleware: (connect) ->
             return [
               lrSnippet
-              mountFolder connect, '.tmp'
               mountFolder connect, yeomanConfig.app
+              mountFolder connect, '.tmp'
             ]
       test:
         options:
           middleware: (connect) ->
             [
+              mountFolder connect, yeomanConfig.app
               mountFolder connect, '.tmp'
               mountFolder connect, 'test'
-            ]
-      dist:
-        options:
-          middleware: (connect) ->
-            return [
-              mountFolder connect, yeomanConfig.dist
             ]
       # connect end
     open:
@@ -95,10 +88,12 @@ module.exports = (grunt) ->
           dot: true
           src: [
             '.tmp'
-            '<%= yeoman.app %>/{,*/}*.html'
+            '<%= yeoman.app %>/{,views/**/}*.html'
             '<%= yeoman.app %>/scripts/{,*/}*.js'
+            '<%= yeoman.app %>/styles/{,*/}*.css'
             '<%= yeoman.dist %>/*'
             '!<%= yeoman.dist %>/.git*'
+            'package'
           ]
         ]
       server: '.tmp'
@@ -111,10 +106,15 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= yeoman.app %>'
-          dest: '.tmp'
+          dest: '<%= yeoman.cmp %>'
           src: '{,views/**/}*.jade'
           ext: '.html'
         ]
+      test:
+        options:
+          pretty: true
+        files:
+          '<%= yeoman.app %>/test.html': 'test/test.jade'
       # jade end
 
     jshint:
@@ -127,35 +127,50 @@ module.exports = (grunt) ->
       all:
         options:
           run: true
-          urls: ['http://localhost:<%= connect.options.port %>/index.html']
+          urls: ['http://localhost:<%= connect.options.port %>/test.html']
       # mocha end
 
     coffee:
       options:
-        sourceMap: true
-        sourceRoot: ''
+        join: true
       dist:
         files: [
-          expand: true
-          cwd: '<%= yeoman.app %>/scripts'
-          src: '{,*/}*.coffee'
-          dest: '.tmp/scripts'
-          ext: '.js'
+            expand: true
+            cwd: '<%= yeoman.app %>/scripts'
+            src: '*.coffee'
+            dest: '<%= yeoman.cmp %>/scripts'
+            ext: '.js'
+          ,
+            '<%= yeoman.cmp %>/scripts/filters.js': [
+              '<%= yeoman.app %>/scripts/filters/**/*.coffee'
+            ]
+          ,
+            '<%= yeoman.cmp %>/scripts/controllers.js': [
+              '<%= yeoman.app %>/scripts/controllers/**/*.coffee'
+            ]
+          ,
+            '<%= yeoman.cmp %>/scripts/services.js': [
+              '<%= yeoman.app %>/scripts/services/**/*.coffee'
+            ]
         ]
       test:
         files: [
-          expand: true
-          cwd: 'test/spec'
-          src: '{,*/}*.coffee'
-          dest: '.tmp/spec'
-          ext: '.js'
+            expand: true
+            cwd: 'test'
+            src: '*.coffee'
+            dest: '<%= yeoman.cmp %>/test'
+            ext: '.js'
+          ,
+            '<%= yeoman.cmp %>/test/mock.js': ['test/mock/**/*.coffee']
+          ,
+            '<%= yeoman.cmp %>/test/spec.js': ['test/spec/**/*.coffee']
         ]
       # coffee end
 
     compass:
       options:
         sassDir: '<%= yeoman.app %>/styles'
-        cssDir: '.tmp/styles'
+        cssDir: '<%= yeoman.cmp %>/styles'
         generatedImagesDir: '.tmp/images/generated'
         imagesDir: '<%= yeoman.app %>/images'
         javascriptsDir: '<%= yeoman.app %>/scripts'
@@ -177,7 +192,13 @@ module.exports = (grunt) ->
       dist:
         files: [
           '<%= yeoman.dist %>/scripts/background.js': [
-            '.tmp/scripts/background.js'
+            '<%= yeoman.cmp %>/scripts/background.js'
+          ]
+          '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js': [
+            '<%= yeoman.app %>/bower_components/mocha/mocha.js'
+            '<%= yeoman.app %>/bower_components/chai/chai.js'
+            '<%= yeoman.app %>/bower_components/sinon-chai/lib/sinon-chai.js'
+            '<%= yeoman.app %>/bower_components/sinonjs/sinon.js'
           ]
         ]
 
@@ -185,22 +206,29 @@ module.exports = (grunt) ->
     # check index.html to edit your build targets
     # enable this task if you prefer defining your build targets here
     uglify:
+      options:
+        sourceMap: (path) -> path.replace /\.js$/, '.js.map'
+        sourceMappingURL: (path) ->
+          path.replace(/.*\//, '').replace /\.js$/, '.js.map'
       dist:
         files: [
           '<%= yeoman.dist %>/scripts/background.js': [
             '<%= yeoman.dist %>/scripts/background.js'
+          ]
+          '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js': [
+            '<%= yeoman.dist %>/scripts/mocha_chai_sinon.js'
           ]
         ]
 
     useminPrepare:
       options:
         dest: '<%= yeoman.dist %>'
-      html: ['.tmp/index.html']
+      html: ['<%= yeoman.cmp %>/index.html']
 
     usemin:
       options:
         dirs: ['<%= yeoman.dist %>']
-      html: ['<%= yeoman.dist %>/{,views/**/}*.html']
+      html: ['<%= yeoman.dist %>/*.html']
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css']
 
     imagemin:
@@ -228,6 +256,9 @@ module.exports = (grunt) ->
             '.tmp/styles/{,*/}*.css'
             '<%= yeoman.app %>/styles/{,*/}*.css'
           ]
+          '<%= yeoman.dist %>/styles/mocha.css': [
+            '<%= yeoman.app %>/bower_components/mocha/mocha.css'
+          ]
 
     htmlmin:
       dist:
@@ -243,7 +274,7 @@ module.exports = (grunt) ->
           # removeOptionalTags: true
         files: [
           expand: true
-          cwd: '.tmp'
+          cwd: '<%= yeoman.cmp %>'
           src: [
             '*.html'
             'views/**/*.html'
@@ -265,20 +296,30 @@ module.exports = (grunt) ->
             '_locales/{,*/}*.json'
             'styles/fonts/*'
             'manifest.json'
+            'test/**/*'
           ]
         ,
           expand: true
           cwd: '.tmp/images'
           dest: '<%= yeoman.dist %>/images'
           src: [ 'generated/*' ]
+        ,
+          '<%= yeoman.dist %>/scripts/angular-mocks.js':
+            '<%= yeoman.app %>/bower_components/angular-mocks/angular-mocks.js'
+        ,
+          '<%= yeoman.dist %>/scripts/EventEmitter.js':
+            '<%= yeoman.app %>/bower_components/eventEmitter/EventEmitter.min.js'
+        ,
+          '<%= yeoman.dist %>/scripts/bloomfilter.js':
+            '<%= yeoman.app %>/bower_components/bloomfilter.js/bloomfilter.js'
         ]
-      watch:
+      dev:
         files: [
-          expand: true
-          dot: true
-          cwd: '<%= yeoman.app %>'
-          dest: '<%= yeoman.dist %>'
-          src: ['manifest.json']
+          '<%= yeoman.cmp %>/scripts/EventEmitter.js':
+            '<%= yeoman.app %>/bower_components/eventEmitter/EventEmitter.js'
+        ,
+          '<%= yeoman.cmp %>/scripts/bloomfilter.js':
+            '<%= yeoman.app %>/bower_components/bloomfilter.js/bloomfilter.js'
         ]
 
     concurrent:
@@ -287,7 +328,9 @@ module.exports = (grunt) ->
         'compass:server'
       ]
       test: [
-        #'coffee'
+        'jade'
+        'copy:dev'
+        'coffee'
         'compass'
       ]
       dist: [
@@ -314,19 +357,15 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= yeoman.dist %>/scripts'
-          src: '{,*/}*.js'
+          src: [
+            'app.js'
+            'controllers.js'
+            'services.js'
+          ]
           dest: '<%= yeoman.dist %>/scripts'
         ]
 
-    karma:
-      unit:
-        configFile: 'karma.conf.js'
-        singleRun: true
-
   grunt.registerTask 'server', (target) ->
-    if target == 'dist'
-      return grunt.task.run ['build', 'open', 'connect:dist:keepalive']
-
     grunt.task.run [
       'clean:server'
       'concurrent:server'
@@ -339,12 +378,12 @@ module.exports = (grunt) ->
     'clean:server'
     'concurrent:test'
     'connect:test'
-    'karma'
+    'mocha'
   ]
 
   grunt.registerTask 'build', [
     'clean:dist'
-    'jade:dist'
+    'jade'
     'useminPrepare'
     'concurrent:dist'
     'cssmin'
@@ -361,5 +400,3 @@ module.exports = (grunt) ->
     'test'
     'build'
   ]
-
-  # end

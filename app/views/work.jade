@@ -1,30 +1,25 @@
 img(src="images/icon-128.png", align="right")
-h1 {{title}}
+h1(ng-bind='"work_title"|i18n') Chrome Robot Work
 
-button.btn(type="button", ng-model="btn.pause", ng-click="pause()") {{btn.pause}}
-button.btn(type="button", ng-model="btn.stop", ng-click="stop()") {{btn.stop}}
-table
-  tr
-    td Starting on:
-    td#startingOn
-  tr
-    td Restrict to:
-    td#restrictTo
-  tr
-    td Queue:
-    td#queue 0
-  tr
-    td Status:
-    td#status Initializing...
+button.btn(type='button', ng-click='restart()', ng-bind='"restart"|i18n') Restart
+.btn-group
+  button.btn(type='button', ng-click='pause()', ng-model="status",
+  btn-radio="'pause'", ng-bind='"pause"|i18n') Pause
+  button.btn(type='button', ng-click='resume()', ng-model="status",
+  btn-radio="'running'", ng-bind='"running"|i18n') Running
 
-table#resultsTable
-  colgroup
-    col(style="width: 32%")
-    col(style="width: 32%")
-    col(style="width: 32%")
+table.table.table-hover
   thead
     tr
-      th.nocase Requested URL
-      th.nocase Returned URL
-      th.nocase Referrer
-  tbody#resultbody
+      th(ng-bind='"request"|i18n') Request
+      th(ng-bind='"work_referrer"|i18n') Referrer
+  tbody
+    tr(ng-repeat="(url,req) in jobs", ng-class='job_class(req)')
+      td
+        a(ng-href='{{req.url}}', target='_blank') {{req.url|limitTo:80}}
+        span.badge.badge-success(ng-show='req.status==200',
+        ng-bind='"work_find"|i18n:[req.url_count]') find new
+        span.label.label-info {{req.status}}
+      td
+        span(ng-hide='req.res') {{req.referrer|limitTo:60}}
+        span(ng-show='req.res') {{req.res|json}}

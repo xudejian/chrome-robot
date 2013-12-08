@@ -11,9 +11,7 @@ describe 'Controller: MainCtrl', () ->
   # Initialize the controller and a mock scope
   beforeEach inject ($controller, $rootScope) ->
     scope = $rootScope.$new()
-    MainCtrl = $controller 'MainCtrl', {
-      $scope: scope
-    }
+    MainCtrl = $controller 'MainCtrl', $scope: scope
 
   it 'should attach a list of awesomeThings to the scope', () ->
-    expect(scope.awesomeThings.length).toBe 1
+    expect(scope.awesomeThings.length).to.equal 1
